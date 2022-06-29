@@ -2,6 +2,14 @@
 
 Set of python scripts with utilities for logging, configuration and data processing
 
+## Dependencies
+
+To install required dependencies you can use requirements file as follows:
+
+```sh
+    $ pip install -r requirements
+```
+
 ## Scripts
 
 ### gps_parser_map.py
