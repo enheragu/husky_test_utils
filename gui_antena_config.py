@@ -7,6 +7,7 @@ from threading import Thread
 import argparse
 
 from tkinter import * 
+from tkinter import ttk
 
 
 serial_port = '/dev/ttyUSB0'
@@ -15,43 +16,54 @@ background = "#ffffff"
 but_background = "#D8E9F1"
 but_active = "#3c91bc"
 
-def printCMD(input_str):
-    print_str = str(input_str)
+def printLog(str_in):
+    print_str = str(str_in)
 
     print_str = print_str.replace("b'","")
     print_str = print_str.replace("\\r\\n'","")
 
-    print('\033[96;1m' + 'OUT:  ' + (print_str) + '\033[0m')
+    print(print_str)
 
-def printLog(input_str):
-    print_str = str(input_str)
+
+def printCMD(str_in):
+    printLog('\033[96;1m' + 'OUT:  ' + str_in(str_in) + '\033[0m')
+
+def printSerialInput(str_in):
+    print_str = str(str_in)
     if print_str == "b''":
         return
 
-    print_str = print_str.replace("b'","")
-    print_str = print_str.replace("\\r\\n'","")
-
     if ">OK" in str(print_str):
-        print('\033[92;1m' + 'IN:  ' + (print_str) + '\033[0m')
+        printLog('\033[92;1m' + 'IN:  ' + (print_str) + '\033[0m')
     else:
-        print('IN:  ' + str(print_str))
+        printLog('IN:  ' + str(print_str))
 
 
-def readSerialPort(serial):
+def readSerialPort(serial_in):
+    """
+        Funtion that iteratively reads line from serial port and print it making use of defined
+        funcion.
+        :param serial_in: Input with serial object with serial port configured
+    """
     while(True):
-        input_str = ser.readline()
-        printLog(input_str)
+        input_str = serial_in.readline()
+        printSerialInput(input_str)
 
 
 def addButton(root, label_in, cmd_in):
-    ### Reset button
+    """
+        Adds button widget to send command.
+        :param label_in: Input of the label to be displayed in the button.
+        :param cmd_in: List or single command (as strign) to be sent.
+    """
+
     but_frame = Frame(root, bg=background, padx=10, pady=10)  
     but_frame.grid(sticky = 'EWNS')     
 
     but_frame.grid_rowconfigure(0, weight=1)
     but_frame.grid_columnconfigure(0, weight=1)
 
-    def sendReset():  
+    def sendCMD():  
         cmd = cmd_in
         if type(cmd) != type(list()):
             cmd = [cmd]
@@ -60,8 +72,32 @@ def addButton(root, label_in, cmd_in):
             printCMD(str(cmd_item))
             ser.write(bytearray(cmd_item))
         
-    button = Button(but_frame, text=label_in, command=sendReset, bg = but_background, activebackground=but_active)
+    button = Button(but_frame, text=label_in, command=sendCMD, bg = but_background, activebackground=but_active)
     button.grid(row= 0, column = 0, sticky = 'EWNS')
+
+def addComboButton(root, label_in, cmd_in, options_in):
+    but_frame = Frame(root, bg=background, padx=10, pady=10)  
+    but_frame.grid(sticky = 'EWNS')     
+
+    but_frame.grid_rowconfigure(0, weight=1)
+    but_frame.grid_columnconfigure(0, weight=1)
+    but_frame.grid_columnconfigure(1, weight=1)
+
+    option_cb = ttk.Combobox(but_frame, values = options_in, state="readonly")
+    option_cb.grid(row= 0, column = 0, padx = 5, sticky = 'EWNS')
+    option_cb.current(len(options_in)-1)
+
+    def sendCMD():  
+        option = option_cb.get()
+        
+        command = str(cmd_in.format(option = option)).encode("ascii")
+        printCMD(str(command))
+        ser.write(bytearray(command))
+        
+    button = Button(but_frame, text=label_in, command=sendCMD, bg = but_background, activebackground=but_active)
+    button.grid(row= 0, column = 1, padx = 5, sticky = 'EWNS')
+
+
 
 def addFixConfig(root, default):
     ### Fix buttonreset_frame = Frame(root)  
@@ -80,7 +116,7 @@ def addFixConfig(root, default):
         alt = entry_alt.get()
         
         command = str('$CFG FIX ' + lat + ' ' + lon + ' ' + alt + '\r\n').encode("ascii")
-        print('\033[1m' + str(command) + '\033[0m')
+        printCMD(str(command))
         ser.write(bytearray(command))
     
     entry_lat = Entry(fix_frame)
@@ -110,9 +146,10 @@ if __name__ == "__main__":
     serial_port = args["port"]
     baudrate = args["baudrate"]
 
-    ser = serial.Serial(serial_port, baudrate, timeout=0.5)
-    read_thread = Thread(target=readSerialPort, args=[ser])
-    read_thread.start()
+    ser = None
+    # ser = serial.Serial(serial_port, baudrate, timeout=0.5)
+    # read_thread = Thread(target=readSerialPort, args=[ser])
+    # read_thread.start()
 
     root = Tk()
 
@@ -124,12 +161,14 @@ if __name__ == "__main__":
     root.grid_rowconfigure(3, weight=1)
     root.config(background=background)
 
-    addButton(root, label_in = "RESET", cmd_in = b'$CFG REST\r\n')
-    addButton(root, label_in = "READ INFO", cmd_in = b'$CFG PROINFO\r\n')
+    addButton(root, label_in = "Reset", cmd_in = b'$CFG REST\r\n')
+    addButton(root, label_in = "Read Info", cmd_in = b'$CFG PROINFO\r\n')
     addButton(root, label_in = "GGA msgs 1s", cmd_in = [b'$CFG PROINFO\r\n',
                                                         b'LOG GNGGA ONTIME 1\r\n',
                                                         b'saveconfig\r\n',
                                                         b'$CFG QUIT\r\n'])
+
+    addComboButton(root, label_in = "Set Baud Rate", cmd_in = '$CFG UART {option}\r\n', options_in = [9600, 115200])
 
     addFixConfig(root, default = [38.27583014802165, -0.6858383729402829, 92])
 
