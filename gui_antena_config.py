@@ -8,9 +8,6 @@ import argparse
 
 from tkinter import * 
 
-# TODO: add arguments to configure serial port and baudrate
-# TODO: add default values to lat and lon -> 38.27583014802165, -0.6858383729402829
-
 
 serial_port = '/dev/ttyUSB0'
 baudrate = 115200
@@ -46,7 +43,7 @@ def readSerialPort(serial):
         printLog(input_str)
 
 
-def addButton(root, but_text, cmd_in):
+def addButton(root, label_in, cmd_in):
     ### Reset button
     but_frame = Frame(root, bg=background, padx=10, pady=10)  
     but_frame.grid(sticky = 'EWNS')     
@@ -63,10 +60,10 @@ def addButton(root, but_text, cmd_in):
             printCMD(str(cmd_item))
             ser.write(bytearray(cmd_item))
         
-    button = Button(but_frame, text=but_text, command=sendReset, bg = but_background, activebackground=but_active)
+    button = Button(but_frame, text=label_in, command=sendReset, bg = but_background, activebackground=but_active)
     button.grid(row= 0, column = 0, sticky = 'EWNS')
 
-def addFixConfig(root):
+def addFixConfig(root, default):
     ### Fix buttonreset_frame = Frame(root)  
     fix_frame = Frame(root, bg=background, padx=10, pady=10)  
     fix_frame.grid(sticky = 'EWNS') 
@@ -95,6 +92,11 @@ def addFixConfig(root):
     entry_alt = Entry(fix_frame)
     entry_alt.grid(row = 1, column = 2, padx = 5, sticky = 'EWNS')
 
+    if default is not None:
+        entry_lat.insert(0, default[0])
+        entry_lon.insert(0, default[1])
+        entry_alt.insert(0, default[2])
+
     fix_but = Button(fix_frame, text='FIX', command=sendFix, bg = but_background, activebackground=but_active)
     fix_but.grid(row = 1, column = 3, padx = 5, sticky = 'EWNS')
 
@@ -122,14 +124,14 @@ if __name__ == "__main__":
     root.grid_rowconfigure(3, weight=1)
     root.config(background=background)
 
-    addButton(root, "RESET", b'$CFG REST\r\n')
-    addButton(root, "READ INFO", b'$CFG PROINFO\r\n')
-    addButton(root, "GGA msgs 1s", [b'$CFG PROINFO\r\n',
-                                    b'LOG GNGGA ONTIME 1\r\n',
-                                    b'saveconfig\r\n',
-                                    b'$CFG QUIT\r\n'])
+    addButton(root, label_in = "RESET", cmd_in = b'$CFG REST\r\n')
+    addButton(root, label_in = "READ INFO", cmd_in = b'$CFG PROINFO\r\n')
+    addButton(root, label_in = "GGA msgs 1s", cmd_in = [b'$CFG PROINFO\r\n',
+                                                        b'LOG GNGGA ONTIME 1\r\n',
+                                                        b'saveconfig\r\n',
+                                                        b'$CFG QUIT\r\n'])
 
-    addFixConfig(root)
+    addFixConfig(root, default = [38.27583014802165, -0.6858383729402829, 92])
 
     root.mainloop()
     ser.close()
