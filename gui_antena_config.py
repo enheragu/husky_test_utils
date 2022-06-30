@@ -4,8 +4,12 @@
 import serial
 import time
 from threading import Thread
+import argparse
 
 from tkinter import * 
+
+# TODO: add arguments to configure serial port and baudrate
+# TODO: add default values to lat and lon -> 38.27583014802165, -0.6858383729402829
 
 
 serial_port = '/dev/ttyUSB0'
@@ -95,6 +99,15 @@ def addFixConfig(root):
     fix_but.grid(row = 1, column = 3, padx = 5, sticky = 'EWNS')
 
 if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description='Graphical User Interface to handle configuration and feedback from Harxon ts100 Smart GPS Antenna through serial port.')
+    parser.add_argument('-p', '--port', default='/dev/ttyUSB0', type = str, help="Port in which the antenna is connected. Takes /dev/ttyUSB0 as default.")
+    parser.add_argument('-b', '--baudrate', default = 115200, type = float, help="Baudrate for communicating with the device. Takes 115200 as default.")
+    args = vars(parser.parse_args())
+
+    serial_port = args["port"]
+    baudrate = args["baudrate"]
+
     ser = serial.Serial(serial_port, baudrate, timeout=0.5)
     read_thread = Thread(target=readSerialPort, args=[ser])
     read_thread.start()
