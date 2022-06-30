@@ -146,12 +146,16 @@ if __name__ == "__main__":
     serial_port = args["port"]
     baudrate = args["baudrate"]
 
-    ser = None
-    # ser = serial.Serial(serial_port, baudrate, timeout=0.5)
-    # read_thread = Thread(target=readSerialPort, args=[ser])
-    # read_thread.start()
+    # ser = None # Use for testing GUI without antenna
+    ser = serial.Serial(serial_port, baudrate, timeout=0.5)
+    read_thread = Thread(target=readSerialPort, args=[ser])
+    read_thread.start()
 
     root = Tk()
+
+    s = ttk.Style(root)
+    print(s.theme_names())
+    s.theme_use('clam')
 
     root.title("Serial Port GPS Antenna Interface")
     root.grid_columnconfigure(0, weight=1)
