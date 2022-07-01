@@ -96,8 +96,8 @@ def addComboButton(root, label_in, cmd_in, options_in, default_index_in = 0):
 
         for cmd_item in cmd:
             command = cmd_item
-            if "\{option\}" in cmd_item:
-                command = str(cmd_in.format(option = option))
+            if hasattr(command, "format"):
+                command = str(command.format(option = option))
             printCMD(str(command))
             ser.write(bytearray(command))
         
