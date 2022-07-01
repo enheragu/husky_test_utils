@@ -26,7 +26,7 @@ def printLog(str_in):
 
 
 def printCMD(str_in):
-    printLog('\033[96;1m' + 'OUT:  ' + str_in(str_in) + '\033[0m')
+    printLog('\033[96;1m' + 'OUT:  ' + str(str_in) + '\033[0m')
 
 def printSerialInput(str_in):
     print_str = str(str_in)
@@ -70,12 +70,12 @@ def addButton(root, label_in, cmd_in):
 
         for cmd_item in cmd:
             printCMD(str(cmd_item))
-            ser.write(bytearray(cmd_item))
+            ser.write(bytearray(cmd_item.encode("ascii")))
         
     button = Button(but_frame, text=label_in, command=sendCMD, bg = but_background, activebackground=but_active)
     button.grid(row= 0, column = 0, sticky = 'EWNS')
 
-def addComboButton(root, label_in, cmd_in, options_in):
+def addComboButton(root, label_in, cmd_in, options_in, default_index_in = 0):
     but_frame = Frame(root, bg=background, padx=10, pady=10)  
     but_frame.grid(sticky = 'EWNS')     
 
@@ -85,14 +85,22 @@ def addComboButton(root, label_in, cmd_in, options_in):
 
     option_cb = ttk.Combobox(but_frame, values = options_in, state="readonly")
     option_cb.grid(row= 0, column = 0, padx = 5, sticky = 'EWNS')
-    option_cb.current(len(options_in)-1)
+    option_cb.current(default_index_in)
 
     def sendCMD():  
         option = option_cb.get()
+
+        cmd = cmd_in
+        if type(cmd) != type(list()):
+            cmd = [cmd]
+
+        for cmd_item in cmd:
+            command = cmd_item
+            if "\{option\}" in cmd_item:
+                command = str(cmd_in.format(option = option))
+            printCMD(str(command))
+            ser.write(bytearray(command))
         
-        command = str(cmd_in.format(option = option)).encode("ascii")
-        printCMD(str(command))
-        ser.write(bytearray(command))
         
     button = Button(but_frame, text=label_in, command=sendCMD, bg = but_background, activebackground=but_active)
     button.grid(row= 0, column = 1, padx = 5, sticky = 'EWNS')
@@ -154,7 +162,6 @@ if __name__ == "__main__":
     root = Tk()
 
     s = ttk.Style(root)
-    print(s.theme_names())
     s.theme_use('clam')
 
     root.title("Serial Port GPS Antenna Interface")
@@ -165,14 +172,17 @@ if __name__ == "__main__":
     root.grid_rowconfigure(3, weight=1)
     root.config(background=background)
 
-    addButton(root, label_in = "Reset", cmd_in = b'$CFG REST\r\n')
-    addButton(root, label_in = "Read Info", cmd_in = b'$CFG PROINFO\r\n')
-    addButton(root, label_in = "GGA msgs 1s", cmd_in = [b'$CFG PROINFO\r\n',
-                                                        b'LOG GNGGA ONTIME 1\r\n',
-                                                        b'saveconfig\r\n',
-                                                        b'$CFG QUIT\r\n'])
+    addButton(root, label_in = "Reset", cmd_in = '$CFG REST\r\n')
+    addButton(root, label_in = "Read Info", cmd_in = '$CFG PROINFO\r\n')
 
-    addComboButton(root, label_in = "Set Baud Rate", cmd_in = '$CFG UART {option}\r\n', options_in = [9600, 115200])
+
+    addComboButton(root, label_in = "GGA msgs 1s", cmd_in = ['$CFG PROINFO\r\n',
+                                                        'LOG GNGGA ONTIME {option}\r\n',
+                                                        'saveconfig\r\n',
+                                                        '$CFG QUIT\r\n'],
+                    options_in = [0.5, 1, 2], default_index_in = 1)
+
+    addComboButton(root, label_in = "Set Baud Rate", cmd_in = '$CFG UART {option}\r\n', options_in = [9600, 115200], default_index_in = 1)
 
     addFixConfig(root, default = [38.27583014802165, -0.6858383729402829, 92])
 
