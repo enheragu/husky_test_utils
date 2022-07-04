@@ -166,18 +166,38 @@ def projectOverMapImage(filename_in, data_in):
         coord = [getCurrentPixelAxis(upper_left_in, lower_right_in, current_in, "X"), getCurrentPixelAxis(upper_left_in, lower_right_in, current_in, "Y")]
         return coord
     
-    pixel_coord = []
-    for current in data_in:
-        pixel_coord.append(getPixelCoordinates(data[0], data[1], current["position"]))
-
 
 
     image = plt.imread(filename_in)
     
     # Figure has to be created with image sizes so resolution is not lost
-    dpi = 200
+    dpi = 300
     height, width, nbands = image.shape
     figsize = width / float(dpi), height / float(dpi)
+
+
+    pixel_coord = []
+    gps_status = [] # GPS status of current point
+    error_ellipse = []
+    not_in_image = False # Flag for logging
+
+    m_to_pixel_transform = float(data[0]["pixel"][1] - data[1]["pixel"][1]) / float(haversine(data[0]["gps"][1], 0, data[1]["gps"][1], 0))
+    for current in data_in:
+        # Are these coords inside the image?
+        current_pixel_coord = getPixelCoordinates(data[0], data[1], current["position"])
+        if current_pixel_coord[0] > 0 and current_pixel_coord[1] > 0 and \
+           current_pixel_coord[0] < width and current_pixel_coord[1] < height:
+            pixel_coord.append(current_pixel_coord)
+            gps_status.append(current["status"])
+            error_ellipse.append([m_to_pixel_transform*sqrt(current["position_covariance"][0])*4,
+                                  m_to_pixel_transform*sqrt(current["position_covariance"][1])*4])
+        else:
+            not_in_image = True
+
+    if not_in_image:
+        print ("[WARN] [projectOverMapImage] - Some pixels are not inside image area." )
+
+
     
     # Create a figure of the right size with one axes that takes up the full figure
     fig = plt.figure(figsize=figsize)
@@ -191,12 +211,12 @@ def projectOverMapImage(filename_in, data_in):
     y_coord = [i[1] for i in pixel_coord]
     
     color_dict = {-1: 'r', 0: 'r', 1: 'y', 2: 'g'}
-    color_list = [color_dict[current["status"]] for current in data_in]
+    color_list = [color_dict[current] for current in gps_status]
     ax.scatter(x = x_coord, y = y_coord, marker = '+', c = color_list, s = 1)
 
     # Computes error ellipse based on 4 times sigma
-    width_ellipse = [sqrt(current["position_covariance"][0])*4 for current in data_in]
-    height_ellipse = [sqrt(current["position_covariance"][1])*4 for current in data_in]
+    width_ellipse = [i[0] for i in error_ellipse]
+    height_ellipse = [i[1] for i in error_ellipse]
 
     ec = EllipseCollection(width_ellipse, height_ellipse, 0, units='xy', offsets=list(zip(x_coord,y_coord)),
                        transOffset=ax.transData, edgecolors = color_list, facecolors = "none")
@@ -221,7 +241,7 @@ def projectLogsOnMap():
             data += parseROSTopicLog(data_set_path + data_path)
         
         for map_path in item["map"]:
-            projectOverMapImage(data_set_path +  item["map"], data)
+            projectOverMapImage(data_set_path +  map_path, data)
 
 if __name__ == "__main__":
     # path = './2022_06_16/'
