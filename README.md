@@ -1,6 +1,6 @@
 # Python Test Utils
 
-Set of python scripts with utilities for logging, configuration and data processing
+Set of python scripts with utilities for logging, configuration and data processing.
 
 ## Dependencies
 
@@ -21,3 +21,17 @@ It is mainly though to project the trajectoires and its associated error (based 
 
 GUI to configure common Harxon ts100 Smart Antenna setup over serial port. 
 
+The interface can be run (if the script has execution permission) as follows:
+```sh
+    $ ./gui_antena_config.py [-h] [-p PORT] [-b BAUDRATE]
+```
+
+Note that the port and baudrate are set as default but can be changed when executing the interface:
+
+```sh
+    optional arguments:
+    -h, --help            show this help message and exit
+    -p PORT, --port PORT  Port in which the antenna is connected. Takes /dev/ttyUSB0 as default.
+    -b BAUDRATE, --baudrate BAUDRATE
+                            Baudrate for communicating with the device. Takes 115200 as default.
+```
