@@ -190,9 +190,9 @@ def projectOverMapImage(filename_in, data_in):
     x_coord = [i[0] for i in pixel_coord]
     y_coord = [i[1] for i in pixel_coord]
     
-    color_dict = {-1: 'r', 0: 'y', 1: 'y', 2: 'g'}
+    color_dict = {-1: 'r', 0: 'r', 1: 'y', 2: 'g'}
     color_list = [color_dict[current["status"]] for current in data_in]
-    ax.scatter(x = x_coord, y = y_coord, c = color_list, s = 1)
+    ax.scatter(x = x_coord, y = y_coord, marker = '+', c = color_list, s = 1)
 
     # Computes error ellipse based on 4 times sigma
     width_ellipse = [sqrt(current["position_covariance"][0])*4 for current in data_in]
@@ -211,6 +211,17 @@ def projectOverMapImage(filename_in, data_in):
 
     return None
 
+
+def projectLogsOnMap():
+    from data_set_list import data_set_path, map_data_set_list
+
+    for item in map_data_set_list:
+        data = []
+        for data_path in item["data"]:
+            data += parseROSTopicLog(data_set_path + data_path)
+        
+        for map_path in item["map"]:
+            projectOverMapImage(data_set_path +  item["map"], data)
 
 if __name__ == "__main__":
     # path = './2022_06_16/'
@@ -236,8 +247,4 @@ if __name__ == "__main__":
     # img_path = path +  "img/"
     # projectOverMapImage(img_path +  "mapa_zona_1.jpg", data)
 
-
-    path = './2022_06_21/'
-    data = parseROSTopicLog(path + "test1_trayectoria.log")
-    img_path = path +  "img/"
-    projectOverMapImage(img_path +  "mapa_trayectoria1.jpg", data)
+    projectLogsOnMap()
