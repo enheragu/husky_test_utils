@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 
+from struct import Struct
 import serial
 import time
 from threading import Thread
@@ -99,7 +100,7 @@ def addComboButton(root, label_in, cmd_in, options_in, default_index_in = 0):
             if hasattr(command, "format"):
                 command = str(command.format(option = option))
             printCMD(str(command))
-            ser.write(bytearray(command))
+            ser.write(bytearray(command.encode("ascii")))
         
         
     button = Button(but_frame, text=label_in, command=sendCMD, bg = but_background, activebackground=but_active)
@@ -154,7 +155,16 @@ if __name__ == "__main__":
     serial_port = args["port"]
     baudrate = args["baudrate"]
 
-    # ser = None # Use for testing GUI without antenna
+    ## Dummy Serial obj to use for testing GUI without antenna
+    # class SerialDummy():
+    #     def __init__(self, serial_port, baudrate, timeout) -> None:
+    #         pass
+    #     def readline(self) -> None:
+    #         return "b''" # gets filtered all the time
+    #     def write(self, smth) -> None:
+    #         pass
+
+    # ser = SerialDummy(serial_port, baudrate, timeout=0.5)
     ser = serial.Serial(serial_port, baudrate, timeout=0.5)
     read_thread = Thread(target=readSerialPort, args=[ser])
     read_thread.start()
@@ -176,11 +186,11 @@ if __name__ == "__main__":
     addButton(root, label_in = "Read Info", cmd_in = '$CFG PROINFO\r\n')
 
 
-    addComboButton(root, label_in = "GGA msgs 1s", cmd_in = ['$CFG PROINFO\r\n',
+    addComboButton(root, label_in = "GGA msgs (Hz)", cmd_in = ['$CFG PROINFO\r\n',
                                                         'LOG GNGGA ONTIME {option}\r\n',
                                                         'saveconfig\r\n',
                                                         '$CFG QUIT\r\n'],
-                    options_in = [0.5, 1, 2], default_index_in = 1)
+                    options_in = [10, 5, 2, 1, 0.5, 0.2, 0.1], default_index_in = 3)
 
     addComboButton(root, label_in = "Set Baud Rate", cmd_in = '$CFG UART {option}\r\n', options_in = [9600, 115200], default_index_in = 1)
 
