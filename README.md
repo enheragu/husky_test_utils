@@ -4,7 +4,7 @@ Set of python scripts with utilities for logging, configuration and data process
 
 ## Dependencies
 
-To install required dependencies you can use requirements file as follows Note that it assumes that python3 is already `installed`:
+To install required dependencies you can use requirements file as follows Note that it assumes that `python3` is already installed:
 
 ```sh
     $ xargs sudo apt-get install <requirements

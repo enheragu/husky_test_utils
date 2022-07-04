@@ -208,8 +208,8 @@ if __name__ == "__main__":
         def write(self, smth) -> None:
             pass
 
-    ser = SerialDummy(serial_port, baudrate, timeout=0.5)
-    # ser = serial.Serial(serial_port, baudrate, timeout=0.5)
+    # ser = SerialDummy(serial_port, baudrate, timeout=0.5)
+    ser = serial.Serial(serial_port, baudrate, timeout=0.5)
     read_thread = Thread(target=readSerialPort, args=[ser])
     read_thread.start()
 
