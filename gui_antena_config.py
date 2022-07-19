@@ -194,22 +194,30 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Graphical User Interface to handle configuration and feedback from Harxon ts100 Smart GPS Antenna through serial port.')
     parser.add_argument('-p', '--port', default='/dev/ttyUSB0', type = str, help="Port in which the antenna is connected. Takes /dev/ttyUSB0 as default.")
     parser.add_argument('-b', '--baudrate', default = 115200, type = float, help="Baudrate for communicating with the device. Takes 115200 as default.")
+    parser.add_argument('-d', '--debug', action='store_true', help="Runs GUI in debug mode with dummy serial.")
     args = vars(parser.parse_args())
 
     serial_port = args["port"]
     baudrate = args["baudrate"]
+    debug = args["debug"]
 
-    ## Dummy Serial obj to use for testing GUI without antenna
-    class SerialDummy():
-        def __init__(self, serial_port, baudrate, timeout) -> None:
-            pass
-        def readline(self) -> None:
-            return "b''" # gets filtered all the time
-        def write(self, smth) -> None:
-            pass
 
-    # ser = SerialDummy(serial_port, baudrate, timeout=0.5)
-    ser = serial.Serial(serial_port, baudrate, timeout=0.5)
+    if debug:
+        ## Dummy Serial obj to use for testing GUI without antenna
+        class SerialDummy():
+            def __init__(self, serial_port, baudrate, timeout) -> None:
+                pass
+            def readline(self) -> None:
+                return "b''" # gets filtered all the time
+            def write(self, smth) -> None:
+                pass
+            def close(self) -> None:
+                pass
+
+        ser = SerialDummy(serial_port, baudrate, timeout=0.5)
+    else:
+        ser = serial.Serial(serial_port, baudrate, timeout=0.5)
+   
     read_thread = Thread(target=readSerialPort, args=[ser])
     read_thread.start()
 
