@@ -13,11 +13,10 @@ export HUSKY_SETUP_SCRIPT_PATH=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1
 ## Default helper variables
 export ROS_CONFIGURED=0
 
-# Configure extras to be included in URDF
-export HUSKY_URDF_EXTRAS="$HUSKY_SETUP_SCRIPT_PATH/../urdf/husky_extras.urdf.xacro"
-
 source $HUSKY_SETUP_SCRIPT_PATH/log_utils.sh				# Log utilities to be used
 source $HUSKY_SETUP_SCRIPT_PATH/husky_private_functions.sh	# Private helper functions
+
+_husky_setup_urdf
 
 ## Prepares setup with ROS setup script and configuring IPs and ports to be used in robot
 function husky_ros_setup() {
