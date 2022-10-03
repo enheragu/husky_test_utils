@@ -68,16 +68,16 @@ function _husky_setup_urdf() {
 	export HUSKY_URDF_EXTRAS="$HUSKY_SETUP_SCRIPT_PATH/../urdf/husky_extras.urdf.xacro"
 	
 	## Export IMU setup
-	um7_imu_enclosure_x_size="0.028"
-	um7_imu_enclosure_y_size="0.028"
-	um7_imu_enclosure_z_size="0.009"
+	um7_imu_enclosure_x_size=0.028
+	um7_imu_enclosure_y_size=0.028
+	um7_imu_enclosure_z_size=0.009
 	
-	export HUSKY_IMU_XYZ="${0.291+um7_imu_enclosure_x_size/2} 0 ${0.284-um7_imu_enclosure_z_size/2}" 
+	export HUSKY_IMU_XYZ="$(echo "0.291+$um7_imu_enclosure_x_size*0.5" | bc) 0 $(echo "0.284-$um7_imu_enclosure_z_size*0.5" | bc)" 
 	export HUSKY_IMU_RPY="0 0 0"
 	export HUSKY_IMU_PARENT="top_plate_rear_link"
 	
 	
-	export HUSKY_LIDAR_XYZ="${0.291+um7_imu_enclosure_x_size/2} 0 0.361925" 
+	export HUSKY_LIDAR_XYZ="$(echo "0.291+$um7_imu_enclosure_x_size*0.5" | bc) 0 0.361925" 
 	export HUSKY_LIDAR_RPY="0 0 0"
 	
 }
