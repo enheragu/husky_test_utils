@@ -1,0 +1,37 @@
+<robot>
+
+  <!-- IMU Properties -->
+  <xacro:property name="imu_enclosure_x_size" value="0.028" />
+  <xacro:property name="imu_enclosure_y_size" value="0.028" />
+  <xacro:property name="imu_enclosure_z_size" value="0.009" />
+
+  <!-- IMU Link is the standard mounting position for the UM7 IMU.-->
+  <!-- Can be modified with environment variables in /etc/ros/setup.bash NOT ANYMORE -->
+  <link name="imu_link"/>
+  <joint name="imu_joint" type="fixed">
+    <origin xyz="${0.291+imu_enclosure_x_size/2} 0 ${0.284-imu_enclosure_z_size/2}" rpy="$(optenv HUSKY_IMU_RPY 0 0 0)" />
+    <parent link="top_plate_rear_link" />
+    <child link="imu_link" />
+  </joint>
+  <gazebo reference="imu_link">
+  </gazebo>
+  
+  <link name="os_sensor"/>
+  <joint name="os_sensor_joint" type="fixed">
+    <origin xyz="${0.291+imu_enclosure_x_size/2} 0 0.361925" rpy="$(optenv HUSKY_LIDAR_RPY 0 0 0)" />
+    <parent link="top_plate_rear_link" />
+    <child link="os_sensor" />
+  </joint>
+  <gazebo reference="os_sensor">
+  </gazebo>
+  
+  <link name="gps_link"/>
+  <joint name="gps_joint" type="fixed">
+    <origin xyz="$(optenv HUSKY_GPS_XYZ 0.35 0 0.245)" rpy="$(optenv HUSKY_GPS_RPY 0 0 0)" />
+    <parent link="base_link" />
+    <child link="gps_link" />
+  </joint>
+  <gazebo reference="gps_link">
+  </gazebo>
+  
+</robot>
