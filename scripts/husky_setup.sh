@@ -36,3 +36,21 @@ function husky_launch_sensors() {
 	roslaunch husky_manager sensors.launch $1
 }
 
+## Launch base setup (base, control and teleoperation)
+# It is launched by default when initin computer, check if you need
+# to manually relaunch it
+function husky_launch_base() {
+	_husky_check_setup
+	roslaunch husky_base base.launch 
+}
+
+## Records rosbag with all topics. It is stored into ~/test_log/ folder under a folder
+# with current date as name
+function husky_record_rosbag() {
+	_husky_check_setup
+	FOLDER_DATE=$(date +%G_%m_%d)
+	ROSBAG_PATH=~/test_log/$FOLDER_DATE
+	mkdir -p $ROSBAG_PATH
+	cd $ROSBAG_PATH
+	rosbag record -a
+}
