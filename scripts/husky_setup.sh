@@ -56,5 +56,11 @@ function husky_record_rosbag() {
 }
 
 function husky_make() {
+	_husky_check_setup
 	(cd ~/husky_noetic_ws/ &&  catkin_make --cmake-args -DCMAKE_BUILD_TYPE=Release)
+}
+
+function husky_launch_rviz() {
+	_husky_check_setup
+	rosrun rviz rviz -d $HUSKY_SETUP_SCRIPT_PATH/../rviz/rviz_map_cfg.rviz
 }
