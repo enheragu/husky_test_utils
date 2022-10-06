@@ -64,6 +64,9 @@ function _husky_lidar_sync_time() {
 
 ## Configure extras for URDF of base husky
 function _husky_setup_urdf() {
+	## Disable default EKF as it will be loaded later including Ouster IMU
+	export ENABLE_EKF=false
+
 	## Configure file with extras to be included in URDF
 	export HUSKY_URDF_EXTRAS="$HUSKY_SETUP_SCRIPT_PATH/../urdf/husky_extras.urdf.xacro"
 	

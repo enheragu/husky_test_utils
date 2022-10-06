@@ -32,7 +32,7 @@ function husky_ros_setup() {
 function husky_launch_sensors() {
 	_husky_lidar_sync_time
 	_husky_check_setup
-	roslaunch husky_manager sensors.launch $1
+	roslaunch husky_manager sensors_manager.launch $1
 }
 
 ## Launch base setup (base, control and teleoperation)
@@ -40,7 +40,8 @@ function husky_launch_sensors() {
 # to manually relaunch it
 function husky_launch_base() {
 	_husky_check_setup
-	roslaunch husky_base base.launch 
+	#roslaunch husky_base base.launch 
+	sudo systemctl restart ros
 }
 
 ## Records rosbag with all topics. It is stored into ~/test_log/ folder under a folder
@@ -52,4 +53,8 @@ function husky_record_rosbag() {
 	mkdir -p $ROSBAG_PATH
 	cd $ROSBAG_PATH
 	rosbag record -a
+}
+
+function husky_make() {
+	(cd ~/husky_noetic_ws/ &&  catkin_make --cmake-args -DCMAKE_BUILD_TYPE=Release)
 }
