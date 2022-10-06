@@ -4,6 +4,7 @@
 RED='\033[1;91m'
 GREEN='\033[1;92m'
 YELLOW='\033[1;93m'
+BOLD='\033[1m'
 NC='\033[0m'
 
 function print_info() {

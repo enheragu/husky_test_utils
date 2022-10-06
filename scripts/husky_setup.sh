@@ -64,3 +64,16 @@ function husky_launch_rviz() {
 	_husky_check_setup
 	rosrun rviz rviz -d $HUSKY_SETUP_SCRIPT_PATH/../rviz/rviz_map_cfg.rviz
 }
+
+function husky_launch_help() {
+	echo -e "The following commands are available to configure launch different packages of the robot:
+	- ${GREEN}husky_ros_setup${NC} -> Command to setup workspace and enviromental variables to work with the different sensors.
+	- ${GREEN}husky_launch_base${NC} -> Launch base package of the robot enabling control, teleoperation and interface with the platform.
+	- ${GREEN}husky_launch_sensors${NC} -> Lanuch the sensors package that enable IMU, LIDAR and GPS messages to be produced. Also launches localization EKF to fuse odometry with both IMU information (UM7 and the one integrated with ouster LIDAR).
+	- ${GREEN}husky_launch_rviz${NC} -> Launches an rviz interface prsetted with some useful information.
+	
+Other commands that might help are:
+	- ${GREEN}husky_make${NC} -> allows to make the husky customization workspace from any path.
+	- ${GREEN}husky_record_rosbag${NC} -> records a complete rosbag in ~/test_log with a folder name based on the timetag of the execution time
+	 "
+}
