@@ -21,6 +21,7 @@ _husky_setup_urdf
 ## Prepares setup with ROS setup script and configuring IPs and ports to be used in robot
 function husky_ros_setup() {
 	_husky_export_ip
+	source ~/cartographer/devel_isolated/setup.sh
 	source ~/husky_noetic_ws/devel/setup.bash
 
 	export ROS_CONFIGURED=1
@@ -44,6 +45,16 @@ function husky_launch_base() {
 	sudo systemctl restart ros
 }
 
+function husky_launch_slam() {
+	_husky_check_setup
+	roslaunch husky_manager cartographer_husky.launch
+}
+
+function husky_launch_rviz() {
+	_husky_check_setup
+	rosrun rviz rviz -d $HUSKY_SETUP_SCRIPT_PATH/../rviz/rviz_map_cfg.rviz
+}
+
 ## Records rosbag with all topics. It is stored into ~/test_log/ folder under a folder
 # with current date as name
 function husky_record_rosbag() {
@@ -60,16 +71,12 @@ function husky_make() {
 	(cd ~/husky_noetic_ws/ &&  catkin_make --cmake-args -DCMAKE_BUILD_TYPE=Release)
 }
 
-function husky_launch_rviz() {
-	_husky_check_setup
-	rosrun rviz rviz -d $HUSKY_SETUP_SCRIPT_PATH/../rviz/rviz_map_cfg.rviz
-}
-
 function husky_launch_help() {
 	echo -e "The following commands are available to configure launch different packages of the robot:
 	- ${GREEN}husky_ros_setup${NC} -> Command to setup workspace and enviromental variables to work with the different sensors.
 	- ${GREEN}husky_launch_base${NC} -> Launch base package of the robot enabling control, teleoperation and interface with the platform.
 	- ${GREEN}husky_launch_sensors${NC} -> Lanuch the sensors package that enable IMU, LIDAR and GPS messages to be produced. Also launches localization EKF to fuse odometry with both IMU information (UM7 and the one integrated with ouster LIDAR).
+	- ${GREEN}husky_launch_slam${NC} -> Lanuch cartographer node to produce SLAM.
 	- ${GREEN}husky_launch_rviz${NC} -> Launches an rviz interface prsetted with some useful information.
 	
 Other commands that might help are:
