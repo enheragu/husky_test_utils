@@ -50,6 +50,11 @@ function husky_launch_slam() {
 	roslaunch husky_manager cartographer_husky.launch
 }
 
+function husky_launch_nav() {
+	_husky_check_setup
+	roslaunch husky_manager nav.launch
+}
+
 function husky_launch_rviz() {
 	_husky_check_setup
 	rosrun rviz rviz -d $HUSKY_SETUP_SCRIPT_PATH/../rviz/rviz_map_cfg.rviz
