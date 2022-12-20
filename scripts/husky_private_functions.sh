@@ -25,6 +25,7 @@ function _husky_get_imu_port() {
 function _husky_export_ip() {
 	_husky_get_ip
 	_husky_get_imu_port
+	_husky_setup_urdf
 	export HUSKY_OBC_IP=$OWN_IP 					# Husky on board computer IP 
 	export HUSKY_LIDAR_IP=169.254.252.240 			# LIDAR IP
 	export HUSKY_LIDAR_IP_DEST=169.254.123.145 	# IP to which LIDAR sends UDP data
@@ -75,9 +76,10 @@ function _husky_setup_urdf() {
 	um7_imu_enclosure_y_size=0.028
 	um7_imu_enclosure_z_size=0.009
 	
-	export HUSKY_IMU_XYZ="$(echo "0.291+$um7_imu_enclosure_x_size*0.5" | bc) 0 $(echo "0.284-$um7_imu_enclosure_z_size*0.5" | bc)" 
+	# export HUSKY_IMU_XYZ="$(echo "0.291+$um7_imu_enclosure_x_size*0.5" | bc) 0 $(echo "0.284-$um7_imu_enclosure_z_size*0.5" | bc)" 
+	export HUSKY_IMU_XYZ=" 0.256 -0.2854 $(echo "0.245+$um7_imu_enclosure_z_size*0.5"| bc)"
 	export HUSKY_IMU_RPY="0 0 0"
-	export HUSKY_IMU_PARENT="top_plate_rear_link"
+	export HUSKY_IMU_PARENT="base_link"
 	
 	
 	export HUSKY_LIDAR_XYZ="$(echo "0.291+$um7_imu_enclosure_x_size*0.5" | bc) 0 0.361925" 
