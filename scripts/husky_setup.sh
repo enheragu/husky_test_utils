@@ -25,7 +25,7 @@ function husky_ros_setup() {
 	source ~/husky_noetic_ws/devel/setup.bash
 
 	export ROS_CONFIGURED=1
-	
+
 	print_green "Husky ROS development environment loaded"
 }
 
@@ -36,12 +36,19 @@ function husky_launch_sensors() {
 	roslaunch husky_manager sensors_manager.launch $1
 }
 
+## Launch localization integration
+function husky_launch_localization() {
+	_husky_lidar_sync_time
+	_husky_check_setup
+	roslaunch husky_manager localization_manager.launch
+}
+
 ## Launch base setup (base, control and teleoperation)
 # It is launched by default when initin computer, check if you need
 # to manually relaunch it
 function husky_launch_base() {
 	_husky_check_setup
-	#roslaunch husky_base base.launch 
+	#roslaunch husky_base base.launch
 	sudo systemctl restart ros
 }
 
@@ -103,7 +110,7 @@ function husky_launch_help() {
 	- ${GREEN}husky_launch_sensors${NC} -> Lanuch the sensors package that enable IMU, LIDAR and GPS messages to be produced. Also launches localization EKF to fuse odometry with both IMU information (UM7 and the one integrated with ouster LIDAR).
 	- ${GREEN}husky_launch_slam${NC} -> Lanuch cartographer node to produce SLAM.
 	- ${GREEN}husky_launch_rviz${NC} -> Launches an rviz interface prsetted with some useful information.
-	
+
 Other commands that might help are:
 	- ${GREEN}husky_make${NC} -> allows to make the husky customization workspace from any path.
 	- ${GREEN}husky_record_rosbag${NC} -> records a complete rosbag in ~/test_log with a folder name based on the timetag of the execution time.
