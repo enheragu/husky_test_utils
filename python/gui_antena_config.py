@@ -89,6 +89,7 @@ def addButton(root, label_in, cmd_in) -> None:
         for cmd_item in cmd:
             printCMD(str(cmd_item))
             ser.write(bytearray((cmd_item+'\r\n').encode("ascii")))
+            time.sleep(0.5)
         
     button = Button(but_frame, text=label_in, command=sendCMD, bg = but_background, activebackground=but_active)
     button.grid(row= 0, column = 0, sticky = 'EWNS')
@@ -133,12 +134,64 @@ def addComboButton(root, label_in, cmd_in, options_in, default_index_in = 0) -> 
                 command = str(command.format(option = option))
             printCMD(str(command))
             ser.write(bytearray((command+'\r\n').encode("ascii")))
+            time.sleep(0.5)
         
         
     button = Button(but_frame, text=label_in, command=sendCMD, bg = but_background, activebackground=but_active)
     button.grid(row= 0, column = 1, padx = 5, sticky = 'EWNS')
 
+def addDoubleComboButton(root, label_in, cmd_in, options_in1, options_in2, default_index_in1 = 0, default_index_in2 = 0) -> None:
+    """
+        Adds configuration entry with 2 combobox (selectable item with options provided)
+        with a button to send the command
+        :param root: root tk frame in which to add this new entry. 
+        :param label_in: Input of the label to be displayed in the button.
+        :param cmd_in: List or single command (as string) to be sent.
+        :param options_in1: Options to be displayed in the first combobox item.
+        :param options_in1: Options to be displayed in the second combobox item.
+        :param default_index_in: Default option to be pre-selected in the combobox to be sent.
 
+    """
+    but_frame = Frame(root, bg=background, padx=10, pady=10)  
+    but_frame.grid(sticky = 'EWNS')     
+
+    ## Row and column configure to allow auto scaling objs
+    but_frame.grid_rowconfigure(0, weight=1)
+    but_frame.grid_columnconfigure(0, weight=1)
+    but_frame.grid_columnconfigure(1, weight=1)
+    but_frame.grid_columnconfigure(2, weight=1)
+
+    option_cb1 = ttk.Combobox(but_frame, values = options_in1, state="readonly")
+    option_cb1.grid(row= 0, column = 0, padx = 5, sticky = 'EWNS')
+    option_cb1.current(default_index_in1)
+
+    option_cb2 = ttk.Combobox(but_frame, values = options_in2, state="readonly")
+    option_cb2.grid(row= 0, column = 1, padx = 5, sticky = 'EWNS')
+    option_cb2.current(default_index_in2)
+
+    def sendCMD() -> None:  
+        """
+            Callback function to be executed when button is pressed. Gets option selected
+            in combobox and prepares the command(s) and send them through the serial port.
+        """
+        option1 = option_cb1.get()
+        option2 = option_cb2.get()
+
+        cmd = cmd_in
+        if type(cmd) != type(list()):
+            cmd = [cmd]
+
+        for cmd_item in cmd:
+            command = cmd_item
+            if hasattr(command, "format"):
+                command = str(command.format(option1 = option1, option2 = option2))
+            printCMD(str(command))
+            ser.write(bytearray((command+'\r\n').encode("ascii")))
+            time.sleep(0.5)
+        
+        
+    button = Button(but_frame, text=label_in, command=sendCMD, bg = but_background, activebackground=but_active)
+    button.grid(row= 0, column = 2, padx = 5, sticky = 'EWNS')
 
 def addFixConfig(root, default) -> None:
     """
@@ -170,6 +223,7 @@ def addFixConfig(root, default) -> None:
         command = str('$CFG FIX ' + lat + ' ' + lon + ' ' + alt + '\r\n').encode("ascii")
         printCMD(str(command))
         ser.write(bytearray(command))
+        time.sleep(0.5)
     
     entry_lat = Entry(fix_frame)
     entry_lat.grid(row = 1, column = 0, padx = 5, sticky = 'EWNS')
@@ -235,7 +289,6 @@ if __name__ == "__main__":
     root.grid_rowconfigure(3, weight=1)
     root.config(background=background)
 
-
     ## Note that all CMD end with a \r\n at the end that is already added by default
     ## Add buttons to be displayed
     addButton(root, label_in = "Reset", cmd_in = '$CFG REST')
@@ -245,11 +298,19 @@ if __name__ == "__main__":
     addFixConfig(root, default = [38.27583014802165, -0.6858383729402829, 92])
 
     ## Selectable menus with commands
-    addComboButton(root, label_in = "GGA msgs (Hz)", cmd_in = ['$CFG PROINFO',
-                                                        'LOG GNGGA ONTIME {option}',
+    addDoubleComboButton(root, label_in = "Config msgs (1/Hz)", cmd_in = ['$CFG GNSS',
+                                                        'LOG {option1} ONTIME {option2}',
                                                         'saveconfig',
                                                         '$CFG QUIT'],
-                    options_in = [10, 5, 2, 1, 0.5, 0.2, 0.1], default_index_in = 3)
+                    options_in1 = ["GPGGA", "GPVTC", "GPRMC", "GPZDA", "GPGSA", "GPGSV"],
+                    options_in2 = [10, 5, 2, 1, 0.5, 0.2, 0.1], default_index_in2 = 4)
+
+    ## Button to remove all message types from antenna output
+    addButton(root, label_in = "Stop all messages", cmd_in = ['$CFG GNSS',
+                                                        'unlogall',
+                                                        'saveconfig',
+                                                        '$CFG QUIT'])
+
     addComboButton(root, label_in = "Set Baud Rate", cmd_in = '$CFG UART {option}', options_in = [9600, 115200], default_index_in = 1)
 
 
