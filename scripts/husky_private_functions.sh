@@ -13,11 +13,13 @@ function _husky_get_ip() {
 
 ## Get ttyUSB port in which IMU is connected
 function _husky_get_imu_port() {
-	export IMU_PORT="/dev/$(dmesg | grep "tty" | sed -En 's/.*usb 1-4: FTDI USB Serial Device converter now attached to (port:)?((ttyUSB[0-9])).*/\2/p')"
+	export IMU_PORT="$(dmesg | grep "tty" | sed -En 's/.*FTDI USB Serial Device converter now attached to (port:)?((ttyUSB[0-9])).*/\2/p')"
 	
 	if [ -z "$IMU_PORT"  ]
 	then
 		export IMU_PORT="/dev/ttyUSB0"
+  	else
+   		export IMU_PORT="/dev/$IMU_PORT"
 	fi
 }
 
