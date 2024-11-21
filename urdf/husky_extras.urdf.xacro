@@ -11,7 +11,7 @@
   <link name="os_sensor"/>
   <joint name="os_sensor_joint" type="fixed">
     <origin xyz="$(optenv HUSKY_LIDAR_XYZ 0 0 0)" rpy="$(optenv HUSKY_LIDAR_RPY 0 0 0)" />
-    <parent link="top_plate_rear_link" />
+    <parent link="top_plate_link" />
     <child link="os_sensor" />
   </joint>
   <gazebo reference="os_sensor">

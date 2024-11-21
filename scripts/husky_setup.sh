@@ -13,16 +13,35 @@ export HUSKY_SETUP_SCRIPT_PATH=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1
 ## Default helper variables
 export ROS_CONFIGURED=0
 
+## Useful topic list
+export HUSKY_CONTROLLER_TOPICS="/husky_velocity_controller/cmd_vel /husky_velocity_controller/odom /tf /tf_static"
+export HUSKY_SENSORS_TOPICS="/gnss/fix /gnss/odom /imu/data /ouster/imu /ouster/points"
+export HUSKY_LOCALZATION_TOPICS="/ekf/odom_filtered /ekf2/odom_filtered /navsat/gps_filtered /navsat/odom_gps"
+
+
 source $HUSKY_SETUP_SCRIPT_PATH/log_utils.sh				# Log utilities to be used
 source $HUSKY_SETUP_SCRIPT_PATH/husky_private_functions.sh	# Private helper functions
 
 _husky_setup_urdf
 
+function bind_fkeys() {
+	bind -x '"\e[15~":"husky_launch_base"'
+	bind -x '"\e[17~":"husky_launch_sensors"'
+	bind -x '"\e[18~":"husky_check_sensors"'
+}
+
 ## Prepares setup with ROS setup script and configuring IPs and ports to be used in robot
 function husky_ros_setup() {
+	bind_fkeys
 	_husky_export_ip
-	source ~/cartographer/devel_isolated/setup.sh
-	source ~/husky_noetic_ws/devel/setup.bash
+	source /home/administrator/cartographer/devel_isolated/setup.sh
+	source /home/administrator/husky_noetic_ws/devel/setup.bash
+
+	# Check if disk is already mounted 
+	if ! grep -qs '/media/administrator/data ' /proc/mounts; then
+		udisksctl mount -b /dev/disk/by-label/data
+		print_green "Mounted disk data"
+	fi
 
 	export ROS_CONFIGURED=1
 
@@ -33,7 +52,8 @@ function husky_ros_setup() {
 function husky_launch_sensors() {
 	_husky_lidar_sync_time
 	_husky_check_setup
-	roslaunch husky_manager sensors_manager.launch $1
+	# roslaunch husky_manager sensors_manager.launch $1
+	sudo systemctl restart sensors.service
 }
 
 ## Launch localization integration
@@ -49,7 +69,8 @@ function husky_launch_localization() {
 function husky_launch_base() {
 	_husky_check_setup
 	#roslaunch husky_base base.launch
-	sudo systemctl restart ros
+	# sudo systemctl restart ros
+	sudo systemctl restart husky_base.service
 }
 
 ## Launch cartographer SLAM configured for the robot
@@ -75,10 +96,10 @@ function husky_launch_rviz() {
 function husky_record_rosbag() {
 	_husky_check_setup
 	FOLDER_DATE=$(date +%G_%m_%d)
-	ROSBAG_PATH=~/test_log/$FOLDER_DATE
+	ROSBAG_PATH=media/administrator/data/rosbags/$FOLDER_DATE
 	mkdir -p $ROSBAG_PATH
 	cd $ROSBAG_PATH
-	rosbag record -a
+	rosbag record -b 0 --chunksize=10240 "$@"
 }
 
 ## Finish cartographer trajectory so a serialization can be performed, then stores the pbstream in a given location
@@ -98,9 +119,16 @@ function husky_serialize_cartographer_output()
 }
 
 ## Command to compile husky workspace from any path
-function husky_make() {
+function husky_make() 
+{
 	_husky_check_setup
 	(cd ~/husky_noetic_ws/ &&  catkin_make --cmake-args -DCMAKE_BUILD_TYPE=Release)
+}
+
+function husky_check_sensors()
+{
+	_husky_check_setup
+	roslaunch husky_manager check.launch
 }
 
 function husky_launch_help() {
@@ -116,4 +144,11 @@ Other commands that might help are:
 	- ${GREEN}husky_record_rosbag${NC} -> records a complete rosbag in ~/test_log with a folder name based on the timetag of the execution time.
 	- ${GREEN}husky_serialize_cartographer_output${NC} -> Serializes the output of Cartographer finishing its current trajectory and stores pbstream file with its current state.
 	"
+}
+
+function husky_multiespectral_camera() 
+{
+	_husky_check_setup
+	_husky_flir_setup
+	roslaunch multiespectral_fb multiespectral.launch
 }

@@ -4,6 +4,16 @@ source $HUSKY_SETUP_SCRIPT_PATH/log_utils.sh
 
 ## Get IP in eno1 adapter (cisco router)
 function _husky_get_ip() {
+
+	## Setup base (wheel...) serial port
+	export HUSKY_PORT="/dev/$(dmesg | grep "tty" | sed -En 's/.*usb 1-[0-9]: pl2303 converter now attached to (port:)?((ttyUSB[0-9])).*/\2/p')"
+	
+	if [ -z "$HUSKY_PORT"  ]
+	then
+		export HUSKY_PORT="/dev/ttyUSB0"
+	fi
+
+	## Setup OBC own IP
 	export OWN_IP=$(ifconfig eno1 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
 	if [ -z "$OWN_IP"  ]
 	then
@@ -13,7 +23,7 @@ function _husky_get_ip() {
 
 ## Get ttyUSB port in which IMU is connected
 function _husky_get_imu_port() {
-	export IMU_PORT="$(dmesg | grep "tty" | sed -En 's/.*FTDI USB Serial Device converter now attached to (port:)?((ttyUSB[0-9])).*/\2/p')"
+	export IMU_PORT="/dev/$(dmesg | grep "tty" | sed -En 's/.*usb 1-[0-9]: FTDI USB Serial Device converter now attached to (port:)?((ttyUSB[0-9])).*/\2/p')"
 	
 	if [ -z "$IMU_PORT"  ]
 	then
@@ -29,8 +39,9 @@ function _husky_export_ip() {
 	_husky_get_imu_port
 	_husky_setup_urdf
 	export HUSKY_OBC_IP=$OWN_IP 					# Husky on board computer IP 
-	export HUSKY_LIDAR_IP=169.254.252.240 			# LIDAR IP
-	export HUSKY_LIDAR_IP_DEST=169.254.123.145 	# IP to which LIDAR sends UDP data
+	export HUSKY_LIDAR_IP=169.254.252.240 			# LIDAR IP ORIGINAL
+	# export HUSKY_LIDAR_IP_DEST=169.254.97.224 	# IP to which LIDAR sends UDP data ORIGINAL
+	export HUSKY_LIDAR_IP_DEST=169.254.123.145 
 	export HUSKY_GPS_PORT="/dev/ttyS0"			# GPS serial port
 	export HUSKY_IMU_PORT=$IMU_PORT				# IMU serial port
 	
@@ -79,12 +90,28 @@ function _husky_setup_urdf() {
 	um7_imu_enclosure_z_size=0.009
 	
 	# export HUSKY_IMU_XYZ="$(echo "0.291+$um7_imu_enclosure_x_size*0.5" | bc) 0 $(echo "0.284-$um7_imu_enclosure_z_size*0.5" | bc)" 
-	export HUSKY_IMU_XYZ=" 0.256 -0.2854 $(echo "0.245+$um7_imu_enclosure_z_size*0.5"| bc)"
+	export HUSKY_IMU_XYZ=" -0.025 0.0 $(echo "0.202+$um7_imu_enclosure_z_size*0.5"| bc)"
 	export HUSKY_IMU_RPY="0 0 0"
-	export HUSKY_IMU_PARENT="base_link"
+	export HUSKY_IMU_PARENT="top_plate_link"
 	
 	
-	export HUSKY_LIDAR_XYZ="$(echo "0.291+$um7_imu_enclosure_x_size*0.5" | bc) 0 0.361925" 
+	#export HUSKY_LIDAR_XYZ="$(echo "0.291+$um7_imu_enclosure_x_size*0.5" | bc) 0 0.361925"
+	export HUSKY_LIDAR_XYZ="-0.055 0 0.585" 
 	export HUSKY_LIDAR_RPY="0 0 0"
 	
+}
+
+
+function _husky_flir_setup()
+{
+	CHECK_FILE="/tmp/.husky_flir_configured_true.check"
+	if [[ -f $CHECK_FILE ]]
+	then
+		print_green "FLIR camera was already synced."
+	else
+		print_green "Configuring FLIR camera to have correct IP."
+		(cd  /opt/spinnaker/bin && ./GigEConfig -a)
+		(cd  /opt/spinnaker/bin && ./GigEConfig -s M0000726 -i 192.168.4.6 -n 255.255.255.0 -g 192.168.4.2)
+		touch $CHECK_FILE
+	fi
 }
