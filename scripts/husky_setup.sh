@@ -24,10 +24,12 @@ source $HUSKY_SETUP_SCRIPT_PATH/husky_private_functions.sh	# Private helper func
 
 _husky_setup_urdf
 
-function bind_fkeys() {
-	bind -x '"\e[15~":"husky_launch_base"'
-	bind -x '"\e[17~":"husky_launch_sensors"'
-	bind -x '"\e[18~":"husky_check_sensors"'
+function bind_fkeys() { # Test output with showkey -a command
+	bind -x '"\e[15~":"husky_launch_base"' 					# F5
+	bind -x '"\e[17~":"husky_launch_sensors"' 				# F6
+	bind -x '"\e[18~":"husky_check_sensors"' 				# F7		
+	bind -x '"\e[19~":"husky_launch_multiespectral_camera"'	# F8
+	bind -x '"\e[20~":"husky_launch_fisheye_cameras"'	# F9
 }
 
 ## Prepares setup with ROS setup script and configuring IPs and ports to be used in robot
@@ -146,9 +148,16 @@ Other commands that might help are:
 	"
 }
 
-function husky_multiespectral_camera() 
+function husky_launch_multiespectral_camera() 
 {
 	_husky_check_setup
-	_husky_flir_setup
+	# _husky_flir_setup
 	roslaunch multiespectral_fb multiespectral.launch
+}
+
+
+function husky_launch_fisheye_cameras() 
+{
+	_husky_check_setup
+	roslaunch husky_manager fisheye_cameras.launch
 }

@@ -29,7 +29,7 @@ function _husky_get_imu_port() {
 	then
 		export IMU_PORT="/dev/ttyUSB0"
   	else
-   		export IMU_PORT="/dev/$IMU_PORT"
+   		export IMU_PORT="$IMU_PORT"
 	fi
 }
 
@@ -41,7 +41,7 @@ function _husky_export_ip() {
 	export HUSKY_OBC_IP=$OWN_IP 					# Husky on board computer IP 
 	export HUSKY_LIDAR_IP=169.254.252.240 			# LIDAR IP ORIGINAL
 	# export HUSKY_LIDAR_IP_DEST=169.254.97.224 	# IP to which LIDAR sends UDP data ORIGINAL
-	export HUSKY_LIDAR_IP_DEST=169.254.123.145 
+	export HUSKY_LIDAR_IP_DEST=169.254.97.224 
 	export HUSKY_GPS_PORT="/dev/ttyS0"			# GPS serial port
 	export HUSKY_IMU_PORT=$IMU_PORT				# IMU serial port
 	
@@ -93,8 +93,7 @@ function _husky_setup_urdf() {
 	export HUSKY_IMU_XYZ=" -0.025 0.0 $(echo "0.202+$um7_imu_enclosure_z_size*0.5"| bc)"
 	export HUSKY_IMU_RPY="0 0 0"
 	export HUSKY_IMU_PARENT="top_plate_link"
-	
-	
+		
 	#export HUSKY_LIDAR_XYZ="$(echo "0.291+$um7_imu_enclosure_x_size*0.5" | bc) 0 0.361925"
 	export HUSKY_LIDAR_XYZ="-0.055 0 0.585" 
 	export HUSKY_LIDAR_RPY="0 0 0"
@@ -102,16 +101,20 @@ function _husky_setup_urdf() {
 }
 
 
-function _husky_flir_setup()
-{
-	CHECK_FILE="/tmp/.husky_flir_configured_true.check"
-	if [[ -f $CHECK_FILE ]]
-	then
-		print_green "FLIR camera was already synced."
-	else
-		print_green "Configuring FLIR camera to have correct IP."
-		(cd  /opt/spinnaker/bin && ./GigEConfig -a)
-		(cd  /opt/spinnaker/bin && ./GigEConfig -s M0000726 -i 192.168.4.6 -n 255.255.255.0 -g 192.168.4.2)
-		touch $CHECK_FILE
-	fi
-}
+# function _husky_flir_setup()
+# {
+# 	# CHECK_FILE="/tmp/.husky_flir_configured_true.check"
+# 	# if [[ -f $CHECK_FILE ]]
+# 	# then
+# 	# 	print_green "FLIR camera was already synced."
+# 	# else
+# 	# 	echo "Clearing previous XML cahce  data from A68 camera"
+# 	# 	rm ~/.config/spinnaker/xml/A68_M0000726_GenICam.xml
+# 	# 	print_green "Configuring FLIR camera to have correct IP."
+# 	# 	# Strange IP appears in paralel in enp1s0 to the Static one configured...
+# 	# 	# Good bye to it :)
+# 	# 	# (cd  /opt/spinnaker/bin && ./GigEConfig -a)
+# 	# 	# (cd  /opt/spinnaker/bin && ./GigEConfig -s M0000726 -i 192.168.4.6 -n 255.255.255.0 -g 192.168.4.2)
+# 	# 	touch $CHECK_FILE
+# 	# fi
+# }
