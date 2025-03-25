@@ -1,0 +1,53 @@
+
+
+conky.config = {
+    update_interval = 1,
+    own_window = true,
+    own_window_type = 'desktop',
+    double_buffer = true,
+    use_xft = true,
+    font = 'Ubuntu Mono:size=10',
+    alignment = 'top_right',
+    gap_x = 15,
+    gap_y = 40,
+    own_window_argb_visual = true,
+    own_window_argb_value = 50,
+    double_buffer = true,
+    draw_shades = false,
+    lua_load = "/home/administrator/eeha/test_utils/monitor/main.lua",
+};
+    
+conky.text = [[
+${image /home/administrator/eeha/test_utils/media/arvc_300p.png -s 195x65}
+${voffset 18}
+
+${color #2C001E}$hr 
+${color #E95420}${font Ubuntu:size=25}${alignc} Husky Monitor
+${color #AEA79F}${font Ubuntu:size=13}${alignc}${time %H:%M}${font}
+${color #AEA79F}${alignc}${font Ubuntu:size=8} ${time %d}/${time %m}/${time %Y}
+${color #2C001E}$hr
+${color #FFFFFF}${font Ubuntu:bold:size=13}Processes ${hr}$font
+
+${lua_parse conky_checkProcesses}
+${color #2C001E}$hr
+${color #FFFFFF}${font Ubuntu:bold:size=13}Sensor Status ${hr}$font
+
+${lua_parse conky_sensorsStatus}
+# ${color #FFFFFF}${font Ubuntu:size=9}${exec cat /tmp/husky_sensor_status.txt}
+${color #2C001E}$hr
+${color #FFFFFF}${font Ubuntu:bold:size=13}Cameras Status ${hr}$font
+
+${lua_parse conky_camerasStatus}
+# ${color #FFFFFF}${font Ubuntu:size=9}${exec cat /tmp/husky_cameras_status.txt}
+${color #2C001E}$hr
+${color #FFFFFF}${font Ubuntu:bold:size=13}Command shortcuts ${hr}$font
+
+${color #FFFFFF}${font Ubuntu:size=9}· F5:   Launch Robot base
+${color #FFFFFF}${font Ubuntu:size=9}· F6:   Launch Robot sensors
+${color #FFFFFF}${font Ubuntu:size=9}· F7:   Launch Multiespectral camera
+${color #FFFFFF}${font Ubuntu:size=9}· F8:   Launch Fisheye cameras
+${color #FFFFFF}${font Ubuntu:size=9}· F9:   Launch Hz Check table
+
+${color #2C001E}$hr
+]];
+    

@@ -1,0 +1,11 @@
+[Unit]
+Description=Execute conky log interface when session is innited
+After=graphical.target
+
+[Service]
+ExecStart=/bin/bash /home/administrator/eeha/test_utils/scripts/husky_conky_monitor.sh
+Type=forking
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
