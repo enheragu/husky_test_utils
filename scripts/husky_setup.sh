@@ -18,18 +18,22 @@ export HUSKY_CONTROLLER_TOPICS="/husky_velocity_controller/cmd_vel /husky_veloci
 export HUSKY_SENSORS_TOPICS="/gnss/fix /gnss/odom /imu/data /ouster/imu /ouster/points"
 export HUSKY_LOCALZATION_TOPICS="/ekf/odom_filtered /ekf2/odom_filtered /navsat/gps_filtered /navsat/odom_gps"
 
-
 source $HUSKY_SETUP_SCRIPT_PATH/log_utils.sh				# Log utilities to be used
 source $HUSKY_SETUP_SCRIPT_PATH/husky_private_functions.sh	# Private helper functions
 
 _husky_setup_urdf
 
 function bind_fkeys() { # Test output with showkey -a command
+if [[ $- == *i* ]]; then
+
 	bind -x '"\e[15~":"husky_launch_base"' 					# F5
 	bind -x '"\e[17~":"husky_launch_sensors"' 				# F6
-	bind -x '"\e[18~":"husky_check_sensors"' 				# F7		
-	bind -x '"\e[19~":"husky_launch_multiespectral_camera"'	# F8
-	bind -x '"\e[20~":"husky_launch_fisheye_cameras"'	# F9
+	bind -x '"\e[18~":"husky_launch_multiespectral_camera"'	# F7
+	bind -x '"\e[19~":"husky_launch_fisheye_cameras"'	    # F8
+	bind -x '"\e[20~":"husky_check_sensors"' 				# F9		
+else
+    echo "Non interactive shell, not binding keys for command shortcuts"
+fi
 }
 
 ## Prepares setup with ROS setup script and configuring IPs and ports to be used in robot
@@ -38,6 +42,9 @@ function husky_ros_setup() {
 	_husky_export_ip
 	source /home/administrator/cartographer/devel_isolated/setup.sh
 	source /home/administrator/husky_noetic_ws/devel/setup.bash
+
+	export ROS_HOSTNAME=localhost
+	export ROS_MASTER_URI=http://localhost:11311
 
 	# Check if disk is already mounted 
 	if ! grep -qs '/media/administrator/data ' /proc/mounts; then
@@ -148,10 +155,37 @@ Other commands that might help are:
 	"
 }
 
+function multiespectral_capture_init()
+{	
+	TOPIC_NAME="/MultiespectralAC/basler_multiespectral/goal"
+	while ! rostopic list | grep -q "$TOPIC_NAME"; do
+		echo "***** Waiting for $TOPIC_NAME server... *****"
+		sleep 1
+	done
+
+	echo "*****	Activate goal for $TOPIC_NAME. *****"
+	
+	rostopic pub /MultiespectralAC/basler_multiespectral/goal multiespectral_fb/MultiespectralAcquisitionActionGoal "header:
+  seq: 0
+  stamp:
+    secs: 0
+    nsecs: 0
+  frame_id: ''
+goal_id:
+  stamp:
+    secs: 0
+    nsecs: 0
+  id: ''
+goal:
+  store: false"
+}
+
 function husky_launch_multiespectral_camera() 
 {
 	_husky_check_setup
 	# _husky_flir_setup
+	# Launch goal to AC to capture images by default from the beginning
+	multiespectral_capture_init &	
 	roslaunch multiespectral_fb multiespectral.launch
 }
 
