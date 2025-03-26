@@ -1,13 +1,11 @@
-# This file should be placed in: /lib/systemd/system/sensors.service :)
-
 [Unit]
-Description="bringup ros"
-After=ros.service
-
+Description="bringup ros drivers for basic Husky sensors"
+After=ros.service 
+# Requires=husky_base.service
 
 [Service]
 Type=simple
-ExecStart=/bin/bash -c "echo '[sensors.service] Setup environtment for systemctl run'; source /home/administrator/husky_setup.sh; _husky_check_setup; echo '[ros.service] Run Husky ROS LIDAR/GPS/IMU sensors'; /opt/ros/noetic/bin/roslaunch husky_manager sensors_manager.launch"
+ExecStart=/bin/bash -c "echo '[sensors.service] Setup environtment for systemctl run'; source /home/administrator/husky_setup.sh; _husky_check_setup; echo '[sensors.service] Run Husky ROS LIDAR/GPS/IMU sensors'; /opt/ros/noetic/bin/roslaunch husky_manager sensors_manager.launch"
 
 [Install]
 WantedBy=multi-user.target

@@ -16,7 +16,7 @@ function parseFile(filename)
             end
 
             -- Formatea la salida con clave en blanco y valor con color dinámico
-            output = output .. "${color #FFFFFF}" .. key .. ": ${alignr}" .. color .. value .. "${color}\n"
+            output = output .. "${color #FFFFFF}${font Ubuntu:size=9} · " .. key .. ": ${alignr}" .. color .. value .. "${color}\n"
         end
     end
 

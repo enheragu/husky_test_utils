@@ -1,0 +1,13 @@
+
+[Unit]
+Description="bringup ros multiespectral cameras"
+After=ros.service
+Requires=sensors.service
+
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c "echo '[multiespectral_cameras.service] Setup environtment for systemctl run'; source /home/administrator/husky_setup.sh; _husky_check_setup; echo '[multiespectral_cameras.service] Run Husky Multiespectral cameras ROS drivers'; husky_launch_multiespectral_camera"
+
+[Install]
+WantedBy=multi-user.target

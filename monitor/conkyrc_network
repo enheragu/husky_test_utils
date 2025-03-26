@@ -1,0 +1,45 @@
+
+
+conky.config = {
+    update_interval = 1,
+    own_window = true,
+    own_window_type = 'desktop',
+    double_buffer = true,
+    use_xft = true,
+    font = 'Ubuntu Mono:size=10',
+    alignment = 'bottom_right',
+    gap_x = 285,
+    gap_y = 8,
+    own_window_argb_visual = true,
+    own_window_argb_value = 50,
+    double_buffer = true,
+    draw_shades = false,
+    minimum_width = 300,
+};
+    
+conky.text = [[
+# Inline if so it does not add spaces :(
+${color #2C001E}$hr${font}
+${if_up enp1s0} ${color #FFFFFF}${font Ubuntu:bold:size=13}Network monitor $hr$font
+
+# ${color #FFFFFF}${font Ubuntu:size=9}${goto 10}Interface${goto 100}Upload Speed${goto 220}Download Speed
+${color #FFFFFF}${font Ubuntu:size=9}${goto 10}enp1s0:${goto 77}[    ↑ ${upspeed enp1s0}${goto 190};${goto 220}↓ ${downspeed enp1s0} ${goto 300}]
+${color #FFFFFF}${font Ubuntu:size=7}${goto 10}(camaras)${alignr}${color AEA79F}${upspeedgraph enp1s0 15,110 7E290D DA4816}  ${downspeedgraph enp1s0 15,110 7E290D DA4816}${color DAD7D3}
+
+${color #FFFFFF}${font Ubuntu:size=9}${goto 10}enp2s0:${goto 77}[    ↑ ${upspeed enp2s0}${goto 190};${goto 220}↓ ${downspeed enp2s0} ${goto 300}]
+${color #FFFFFF}${font Ubuntu:size=7}${goto 10}(LIDAR)${alignr}${color AEA79F}${upspeedgraph enp2s0 15,110 7E290D DA4816}  ${downspeedgraph enp2s0 15,110 7E290D DA4816}${color DAD7D3}
+
+${color #FFFFFF}${font Ubuntu:size=9}${goto 10}wlp3s0:${goto 77}[    ↑ ${upspeed wlp3s0}${goto 190};${goto 220}↓ ${downspeed wlp3s0} ${goto 300}]
+${color #FFFFFF}${font Ubuntu:size=7}${goto 10}(${wireless_essid wlp3s0})${alignr}${color AEA79F}${upspeedgraph wlp3s0 15,110 7E290D DA4816}  ${downspeedgraph wlp3s0 15,110 7E290D DA4816}${color DAD7D3}
+
+${color #2C001E}$hr${font}
+
+
+#${if_up enp1s0} ${color #FFFFFF}${font Ubuntu:bold:size=13}Resources $hr$font
+##${color #FFFFFF}${font Ubuntu:size=9}CPU Load $alignr${color AEA79F}${loadgraph 9,145 7E290D DA4816}${color DAD7D3}
+#${color #FFFFFF}${font Ubuntu:size=9}Memory $alignr$memmax  ${color AEA79F}${membar 6,90}${color DAD7D3}
+#${color #FFFFFF}${font Ubuntu:size=9}Swap $alignr$swapmax  ${color AEA79F}${swapbar 6,90}${color DAD7D3}
+## ${execi 5 iftop -t -s 1 -L 1 -i enp1s0 | grep -v "<=>" | tail -n +3}
+#${color #2C001E}$hr${font}
+]];
+    

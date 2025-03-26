@@ -24,7 +24,7 @@ done
 source $CURRENT_SCRIPT_PATH/husky_setup.sh
 _husky_check_setup
 roscore & 
-rosrun husky_manager check_sensors.py __name:=conky_check_sensors >/dev/null 2>&1 &
+rosrun husky_manager check_sensors.py __name:=conky_check_sensors >/dev/null &
 
-
+conky -d -c $CURRENT_SCRIPT_PATH/../monitor/conkyrc_network &
 conky -d -c $CURRENT_SCRIPT_PATH/../monitor/conkyrc

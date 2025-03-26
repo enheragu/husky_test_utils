@@ -23,25 +23,20 @@ ${voffset 18}
 
 ${color #2C001E}$hr 
 ${color #E95420}${font Ubuntu:size=25}${alignc} Husky Monitor
-${color #AEA79F}${font Ubuntu:size=13}${alignc}${time %H:%M}${font}
-${color #AEA79F}${alignc}${font Ubuntu:size=8} ${time %d}/${time %m}/${time %Y}
+${color #AEA79F}${font Ubuntu:size=13}${alignc}${time %H:%M} - ${time %d}/${time %m}/${time %Y}
 ${color #2C001E}$hr
 ${color #FFFFFF}${font Ubuntu:bold:size=13}Processes ${hr}$font
-
 ${lua_parse conky_checkProcesses}
 ${color #2C001E}$hr
 ${color #FFFFFF}${font Ubuntu:bold:size=13}Sensor Status ${hr}$font
-
 ${lua_parse conky_sensorsStatus}
 # ${color #FFFFFF}${font Ubuntu:size=9}${exec cat /tmp/husky_sensor_status.txt}
 ${color #2C001E}$hr
 ${color #FFFFFF}${font Ubuntu:bold:size=13}Cameras Status ${hr}$font
-
 ${lua_parse conky_camerasStatus}
 # ${color #FFFFFF}${font Ubuntu:size=9}${exec cat /tmp/husky_cameras_status.txt}
 ${color #2C001E}$hr
 ${color #FFFFFF}${font Ubuntu:bold:size=13}Command shortcuts ${hr}$font
-
 ${color #FFFFFF}${font Ubuntu:size=9}· F5:   Launch Robot base
 ${color #FFFFFF}${font Ubuntu:size=9}· F6:   Launch Robot sensors
 ${color #FFFFFF}${font Ubuntu:size=9}· F7:   Launch Multiespectral camera
@@ -49,5 +44,16 @@ ${color #FFFFFF}${font Ubuntu:size=9}· F8:   Launch Fisheye cameras
 ${color #FFFFFF}${font Ubuntu:size=9}· F9:   Launch Hz Check table
 
 ${color #2C001E}$hr
+${color #FFFFFF}${font Ubuntu:bold:size=13}Sensors setup ${hr}$font
+${color #FFFFFF}${font Ubuntu:size=9}
+· Wifi access IP: ${alignr}${addr wlp3s0}
+· Husky OBC IP: ${alignr}$HUSKY_OBC_IP
+· Ouster IP: ${alignr}$HUSKY_LIDAR_IP
+· enp2s0 IP: ${alignr}$HUSKY_LIDAR_IP_DEST
+· GPS Port: ${alignr}$HUSKY_GPS_PORT
+· IMU Port: ${alignr}$HUSKY_IMU_PORT
+${font}
+${color #2C001E}$hr
+
 ]];
     

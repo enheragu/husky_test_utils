@@ -1,0 +1,11 @@
+[Unit]
+Description="bringup ros drivers for Fisheye cameras in Husky robot"
+After=ros.service 
+Requires=sensors.service
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c "echo '[fisheye_cameras.service] Setup environtment for systemctl run'; source /home/administrator/husky_setup.sh; _husky_check_setup; echo '[fisheye_cameras.service] Run Husky Fisheye cameras ROS drivers'; /opt/ros/noetic/bin/roslaunch husky_manager fisheye_cameras.launch"
+
+[Install]
+WantedBy=multi-user.target

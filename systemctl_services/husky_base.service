@@ -4,12 +4,11 @@
 Description="bringup ros"
 After=network.target
 
-
 [Service]
 Type=simple
 # Environment="HUSKY_PORT=$HUSKY_PORT"
 # ExecStart=/usr/sbin/ros-start
-ExecStart=/bin/bash -c "echo '[ros.service] Setup environtment for systemctl run'; source /home/administrator/husky_setup.sh; _husky_check_setup; echo '[ros.service] Run Husky ROS base'; /opt/ros/noetic/bin/roslaunch husky_base base.launch"
+ExecStart=/bin/bash -c "echo '[husky_base.service] Setup environtment for systemctl run'; source /home/administrator/husky_setup.sh; _husky_check_setup; echo '[husky_base.service] Run Husky ROS base'; /opt/ros/noetic/bin/roslaunch husky_base base.launch"
 
 [Install]
 WantedBy=multi-user.target

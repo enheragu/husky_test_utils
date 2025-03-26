@@ -39,12 +39,19 @@ function _husky_export_ip() {
 	_husky_get_imu_port
 	_husky_setup_urdf
 	export HUSKY_OBC_IP=$OWN_IP 					# Husky on board computer IP 
-	export HUSKY_LIDAR_IP=169.254.252.240 			# LIDAR IP ORIGINAL
-	# export HUSKY_LIDAR_IP_DEST=169.254.97.224 	# IP to which LIDAR sends UDP data ORIGINAL
-	export HUSKY_LIDAR_IP_DEST=169.254.97.224 
+	export HUSKY_LIDAR_IP=$(getent hosts os-122138000706.local | awk '{print $1}') 			# LIDAR IP ORIGINAL
+	export HUSKY_LIDAR_IP_DEST=$(ip addr show enp2s0 | grep "inet " | awk '{print $2}' | cut -d/ -f1)
+	# export HUSKY_LIDAR_IP_DEST=169.254.97.224 
 	export HUSKY_GPS_PORT="/dev/ttyS0"			# GPS serial port
 	export HUSKY_IMU_PORT=$IMU_PORT				# IMU serial port
 	
+	export FRONTAL_FISHEYE_IP="169.254.165.4"
+    export REAR_FISHEYE_IP="169.254.165.3"
+	export MULTIESPECTRAL_VISIBLE_IP="169.254.165.5"
+	export MULTIESPECTRAL_LWIR_IP="169.254.165.138"
+
+	export HUSKY_WIFI_IP=$(ip addr show wlp3s0 | grep "inet " | awk '{print $2}' | cut -d/ -f1)
+
 	export ROS_MASTER_URI=http://$OWN_IP:11311	# ROS Master IP
 	export ROS_IP=$OWN_IP						# ROS IP of this OBC
 }
@@ -118,3 +125,47 @@ function _husky_setup_urdf() {
 # 	# 	touch $CHECK_FILE
 # 	# fi
 # }
+
+
+function _multiespectral_capture_init()
+{   
+    TOPIC_NAME="/Multiespectral/AS/goal"
+    TIMEOUT=15
+    ELAPSED=0
+
+    while ! rostopic list | grep -q "$TOPIC_NAME"; do
+        if [ "$ELAPSED" -ge "$TIMEOUT" ]; then
+            echo "***** Timeout reached. $TOPIC_NAME server not found. Exiting. *****"
+            return 1
+        fi
+
+        echo "***** Waiting for $TOPIC_NAME server... *****"
+        sleep 1
+        ELAPSED=$((ELAPSED + 1))
+    done
+
+    echo "***** Activate goal for $TOPIC_NAME. *****"
+    
+    rostopic pub /Multiespectral/AS/goal multiespectral_fb/MultiespectralAcquisitionActionGoal "header:
+  seq: 0
+  stamp:
+    secs: 0
+    nsecs: 0
+  frame_id: ''
+goal_id:
+  stamp:
+    secs: 0
+    nsecs: 0
+  id: ''
+goal:
+  store: false"
+}
+
+
+function _husky_launch_multiespectral_camera() 
+{
+	# _husky_flir_setup
+	# Launch goal to AC to capture images by default from the beginning
+	_multiespectral_capture_init &	
+	roslaunch multiespectral_fb multiespectral.launch
+}

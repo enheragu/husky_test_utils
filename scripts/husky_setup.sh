@@ -57,21 +57,6 @@ function husky_ros_setup() {
 	print_green "Husky ROS development environment loaded"
 }
 
-## Launch sensosrs interfaces (GPS, LIDAR and IMU)
-function husky_launch_sensors() {
-	_husky_lidar_sync_time
-	_husky_check_setup
-	# roslaunch husky_manager sensors_manager.launch $1
-	sudo systemctl restart sensors.service
-}
-
-## Launch localization integration
-function husky_launch_localization() {
-	_husky_lidar_sync_time
-	_husky_check_setup
-	roslaunch husky_manager localization_manager.launch
-}
-
 ## Launch base setup (base, control and teleoperation)
 # It is launched by default when initin computer, check if you need
 # to manually relaunch it
@@ -80,51 +65,35 @@ function husky_launch_base() {
 	#roslaunch husky_base base.launch
 	# sudo systemctl restart ros
 	sudo systemctl restart husky_base.service
+	systemctl --user restart conky.service
 }
 
-## Launch cartographer SLAM configured for the robot
-function husky_launch_slam() {
+## Launch sensosrs interfaces (GPS, LIDAR and IMU)
+function husky_launch_sensors() {
+	_husky_lidar_sync_time
 	_husky_check_setup
-	roslaunch husky_manager cartographer_husky.launch
+	# roslaunch husky_manager sensors_manager.launch $1
+	sudo systemctl restart sensors.service
 }
 
-## Launch MoveBase module to worka along Cartographer SLAM and the rest of the robot modules
-function husky_launch_nav() {
-	_husky_check_setup
-	roslaunch husky_manager nav.launch
-}
-
-## Launch rviz session with some usefull topics preconfigured to be shown
-function husky_launch_rviz() {
-	_husky_check_setup
-	rosrun rviz rviz -d $HUSKY_SETUP_SCRIPT_PATH/../rviz/rviz_map_cfg.rviz
-}
-
-## Records rosbag with all topics. It is stored into ~/test_log/ folder under a folder
-# with current date as name
-function husky_record_rosbag() {
-	_husky_check_setup
-	FOLDER_DATE=$(date +%G_%m_%d)
-	ROSBAG_PATH=media/administrator/data/rosbags/$FOLDER_DATE
-	mkdir -p $ROSBAG_PATH
-	cd $ROSBAG_PATH
-	rosbag record -b 0 --chunksize=10240 "$@"
-}
-
-## Finish cartographer trajectory so a serialization can be performed, then stores the pbstream in a given location
-function husky_serialize_cartographer_output()
+# Launch both Basler and LWIR camera pair, with a start goal already
+# posted
+function husky_launch_multiespectral_camera() 
 {
-	# Finish the first trajectory. No further data will be accepted on it.
-	rosservice call /finish_trajectory 0
+	_husky_check_setup
+	# _husky_flir_setup
+	# Launch goal to AC to capture images by default from the beginning
+	_multiespectral_capture_init &	
+	roslaunch multiespectral_fb multiespectral.launch
+	# sudo systemctl restart multiespectral_cameras.service
+}
 
-	# Ask Cartographer to serialize its current state.
-	# (press tab to quickly expand the parameter syntax)
-	FOLDER_DATE=$(date +%G_%m_%d_%H_%M)
-	MAP_PATH=~/map_log/$FOLDER_DATE
-	mkdir -p $MAP_PATH
-	rosservice call /write_state "{filename: '${MAP_PATH}/map.pbstream', include_unfinished_submaps: "true"}"
-	( cd ${MAP_PATH} && cartographer_pbstream_to_ros_map -pbstream_filename  ${MAP_PATH}/map.pbstream )
-	echo -e "${GREEN}Stored serialized data in: ${MAP_PATH}/map.pbstream${NC}"
+# Launch both Fisheye cameras
+function husky_launch_fisheye_cameras() 
+{
+	_husky_check_setup
+	# sudo systemctl restart fisheye_cameras.service
+	roslaunch husky_manager fisheye_cameras.launch
 }
 
 ## Command to compile husky workspace from any path
@@ -140,58 +109,78 @@ function husky_check_sensors()
 	roslaunch husky_manager check.launch
 }
 
-function husky_launch_help() {
-	echo -e "The following commands are available to configure launch different packages of the robot:
-	- ${GREEN}husky_ros_setup${NC} -> Command to setup workspace and enviromental variables to work with the different sensors.
-	- ${GREEN}husky_launch_base${NC} -> Launch base package of the robot enabling control, teleoperation and interface with the platform.
-	- ${GREEN}husky_launch_sensors${NC} -> Lanuch the sensors package that enable IMU, LIDAR and GPS messages to be produced. Also launches localization EKF to fuse odometry with both IMU information (UM7 and the one integrated with ouster LIDAR).
-	- ${GREEN}husky_launch_slam${NC} -> Lanuch cartographer node to produce SLAM.
-	- ${GREEN}husky_launch_rviz${NC} -> Launches an rviz interface prsetted with some useful information.
 
-Other commands that might help are:
-	- ${GREEN}husky_make${NC} -> allows to make the husky customization workspace from any path.
-	- ${GREEN}husky_record_rosbag${NC} -> records a complete rosbag in ~/test_log with a folder name based on the timetag of the execution time.
-	- ${GREEN}husky_serialize_cartographer_output${NC} -> Serializes the output of Cartographer finishing its current trajectory and stores pbstream file with its current state.
-	"
-}
-
-function multiespectral_capture_init()
-{	
-	TOPIC_NAME="/MultiespectralAC/basler_multiespectral/goal"
-	while ! rostopic list | grep -q "$TOPIC_NAME"; do
-		echo "***** Waiting for $TOPIC_NAME server... *****"
-		sleep 1
-	done
-
-	echo "*****	Activate goal for $TOPIC_NAME. *****"
-	
-	rostopic pub /MultiespectralAC/basler_multiespectral/goal multiespectral_fb/MultiespectralAcquisitionActionGoal "header:
-  seq: 0
-  stamp:
-    secs: 0
-    nsecs: 0
-  frame_id: ''
-goal_id:
-  stamp:
-    secs: 0
-    nsecs: 0
-  id: ''
-goal:
-  store: false"
-}
-
-function husky_launch_multiespectral_camera() 
-{
+## Launch localization integration
+function husky_launch_localization() {
+	_husky_lidar_sync_time
 	_husky_check_setup
-	# _husky_flir_setup
-	# Launch goal to AC to capture images by default from the beginning
-	multiespectral_capture_init &	
-	roslaunch multiespectral_fb multiespectral.launch
+	roslaunch husky_manager localization_manager.launch
 }
 
 
-function husky_launch_fisheye_cameras() 
-{
-	_husky_check_setup
-	roslaunch husky_manager fisheye_cameras.launch
-}
+
+#########################
+##    DEPRECATED :)    ##
+#########################
+
+# ## Launch MoveBase module to worka along Cartographer SLAM and the rest of the robot modules
+# function husky_launch_nav() {
+# 	_husky_check_setup
+# 	roslaunch husky_manager nav.launch
+# }
+
+## Launch cartographer SLAM configured for the robot
+# # function husky_launch_slam() {
+# 	_husky_check_setup
+# 	roslaunch husky_manager cartographer_husky.launch
+# }
+
+# ## Launch rviz session with some usefull topics preconfigured to be shown
+# function husky_launch_rviz() {
+# 	_husky_check_setup
+# 	rosrun rviz rviz -d $HUSKY_SETUP_SCRIPT_PATH/../rviz/rviz_map_cfg.rviz
+# }
+
+# ## Records rosbag with all topics. It is stored into ~/test_log/ folder under a folder
+# # with current date as name
+# function husky_record_rosbag() {
+# 	_husky_check_setup
+# 	FOLDER_DATE=$(date +%G_%m_%d)
+# 	ROSBAG_PATH=media/administrator/data/rosbags/$FOLDER_DATE
+# 	mkdir -p $ROSBAG_PATH
+# 	cd $ROSBAG_PATH
+# 	rosbag record -b 0 --chunksize=10240 "$@"
+# }
+
+# ## Finish cartographer trajectory so a serialization can be performed, then stores the pbstream in a given location
+# function husky_serialize_cartographer_output()
+# {
+# 	# Finish the first trajectory. No further data will be accepted on it.
+# 	rosservice call /finish_trajectory 0
+
+# 	# Ask Cartographer to serialize its current state.
+# 	# (press tab to quickly expand the parameter syntax)
+# 	FOLDER_DATE=$(date +%G_%m_%d_%H_%M)
+# 	MAP_PATH=~/map_log/$FOLDER_DATE
+# 	mkdir -p $MAP_PATH
+# 	rosservice call /write_state "{filename: '${MAP_PATH}/map.pbstream', include_unfinished_submaps: "true"}"
+# 	( cd ${MAP_PATH} && cartographer_pbstream_to_ros_map -pbstream_filename  ${MAP_PATH}/map.pbstream )
+# 	echo -e "${GREEN}Stored serialized data in: ${MAP_PATH}/map.pbstream${NC}"
+# }
+
+
+# function husky_launch_help() {
+# 	echo -e "The following commands are available to configure launch different packages of the robot:
+# 	- ${GREEN}husky_ros_setup${NC} -> Command to setup workspace and enviromental variables to work with the different sensors.
+# 	- ${GREEN}husky_launch_base${NC} -> Launch base package of the robot enabling control, teleoperation and interface with the platform.
+# 	- ${GREEN}husky_launch_sensors${NC} -> Lanuch the sensors package that enable IMU, LIDAR and GPS messages to be produced. Also launches localization EKF to fuse odometry with both IMU information (UM7 and the one integrated with ouster LIDAR).
+# 	- ${GREEN}husky_launch_slam${NC} -> Lanuch cartographer node to produce SLAM.
+# 	- ${GREEN}husky_launch_rviz${NC} -> Launches an rviz interface prsetted with some useful information.
+
+# Other commands that might help are:
+# 	- ${GREEN}husky_make${NC} -> allows to make the husky customization workspace from any path.
+# 	- ${GREEN}husky_record_rosbag${NC} -> records a complete rosbag in ~/test_log with a folder name based on the timetag of the execution time.
+# 	- ${GREEN}husky_serialize_cartographer_output${NC} -> Serializes the output of Cartographer finishing its current trajectory and stores pbstream file with its current state.
+# 	"
+# }
+
