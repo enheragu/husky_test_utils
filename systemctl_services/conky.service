@@ -1,6 +1,7 @@
 [Unit]
 Description=Execute conky log interface when session is innited
 After=graphical.target
+Required=graphical.target
 
 [Service]
 ExecStart=/bin/bash /home/administrator/eeha/test_utils/scripts/husky_conky_monitor.sh

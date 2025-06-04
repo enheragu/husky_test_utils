@@ -46,7 +46,8 @@ ${color #FFFFFF}${font Ubuntu:size=9}· F9:   Launch Hz Check table
 ${color #2C001E}$hr
 ${color #FFFFFF}${font Ubuntu:bold:size=13}Sensors setup ${hr}$font
 ${color #FFFFFF}${font Ubuntu:size=9}
-· Wifi access IP: ${alignr}${addr wlp3s0}
+· Wifi access IP: ${alignr}$HUSKY_WIFI_IP #${addr wlp3s0}
+
 · Husky OBC IP: ${alignr}$HUSKY_OBC_IP
 · Ouster IP: ${alignr}$HUSKY_LIDAR_IP
 · enp2s0 IP: ${alignr}$HUSKY_LIDAR_IP_DEST

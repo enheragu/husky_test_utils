@@ -1,10 +1,11 @@
 [Unit]
 Description="bringup ros drivers for basic Husky sensors"
-After=ros.service 
-# Requires=husky_base.service
+After=husky_base.service
+Requires=husky_base.service
 
 [Service]
 Type=simple
+#ExecStartPre=/bin/bash -c "until rosnode list &>/dev/null; do sleep 2; done" # Wait until roscore is ready
 ExecStart=/bin/bash -c "echo '[sensors.service] Setup environtment for systemctl run'; source /home/administrator/husky_setup.sh; _husky_check_setup; echo '[sensors.service] Run Husky ROS LIDAR/GPS/IMU sensors'; /opt/ros/noetic/bin/roslaunch husky_manager sensors_manager.launch"
 
 [Install]

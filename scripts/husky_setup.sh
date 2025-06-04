@@ -40,12 +40,21 @@ fi
 function husky_ros_setup() {
 	bind_fkeys
 	_husky_export_ip
-	source /home/administrator/cartographer/devel_isolated/setup.sh
+	# source /home/administrator/cartographer/devel_isolated/setup.sh
 	source /home/administrator/husky_noetic_ws/devel/setup.bash
 
+	# When run in systemctl theres no localhost yet
 	export ROS_HOSTNAME=localhost
 	export ROS_MASTER_URI=http://localhost:11311
 
+	# export ROS_HOSTNAME=$HUSKY_WIFI_IP	
+	# export ROS_MASTER_URI=http://$HUSKY_WIFI_IP:11311
+	# export ROS_IP=$HUSKY_WIFI_IP							
+
+	# export ROS_MASTER_URI=http://$OWN_IP:11311	# ROS Master IP
+	# export ROS_IP=$OWN_IP						# ROS IP of this OBC
+	
+	
 	# Check if disk is already mounted 
 	if ! grep -qs '/media/administrator/data ' /proc/mounts; then
 		udisksctl mount -b /dev/disk/by-label/data
@@ -65,7 +74,6 @@ function husky_launch_base() {
 	#roslaunch husky_base base.launch
 	# sudo systemctl restart ros
 	sudo systemctl restart husky_base.service
-	systemctl --user restart conky.service
 }
 
 ## Launch sensosrs interfaces (GPS, LIDAR and IMU)

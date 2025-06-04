@@ -20,7 +20,7 @@ conky.config = {
 conky.text = [[
 # Inline if so it does not add spaces :(
 ${color #2C001E}$hr${font}
-${if_up enp1s0} ${color #FFFFFF}${font Ubuntu:bold:size=13}Network monitor $hr$font
+${color #FFFFFF}${font Ubuntu:bold:size=13}Network monitor $hr$font
 
 # ${color #FFFFFF}${font Ubuntu:size=9}${goto 10}Interface${goto 100}Upload Speed${goto 220}Download Speed
 ${color #FFFFFF}${font Ubuntu:size=9}${goto 10}enp1s0:${goto 77}[    ↑ ${upspeed enp1s0}${goto 190};${goto 220}↓ ${downspeed enp1s0} ${goto 300}]

@@ -39,6 +39,7 @@ function _husky_export_ip() {
 	_husky_get_imu_port
 	_husky_setup_urdf
 	export HUSKY_OBC_IP=$OWN_IP 					# Husky on board computer IP 
+	# export HUSKY_LIDAR_IP=$(getent hosts os-122512000307.local | awk '{print $1}') 			# LIDAR IP ORIGINAL
 	export HUSKY_LIDAR_IP=$(getent hosts os-122138000706.local | awk '{print $1}') 			# LIDAR IP ORIGINAL
 	export HUSKY_LIDAR_IP_DEST=$(ip addr show enp2s0 | grep "inet " | awk '{print $2}' | cut -d/ -f1)
 	# export HUSKY_LIDAR_IP_DEST=169.254.97.224 
@@ -49,11 +50,10 @@ function _husky_export_ip() {
     export REAR_FISHEYE_IP="169.254.165.3"
 	export MULTIESPECTRAL_VISIBLE_IP="169.254.165.5"
 	export MULTIESPECTRAL_LWIR_IP="169.254.165.138"
+	
+	export HUSKY_WIFI_IP=192.168.1.151 # Static IP configured 
+	# export HUSKY_WIFI_IP=$(ip addr show wlp3s0 | grep "inet " | awk '{print $2}' | cut -d/ -f1)
 
-	export HUSKY_WIFI_IP=$(ip addr show wlp3s0 | grep "inet " | awk '{print $2}' | cut -d/ -f1)
-
-	export ROS_MASTER_URI=http://$OWN_IP:11311	# ROS Master IP
-	export ROS_IP=$OWN_IP						# ROS IP of this OBC
 }
 
 

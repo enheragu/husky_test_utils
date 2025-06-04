@@ -21,10 +21,38 @@ while true; do
   sleep 1
 done
 
+echo "[husky_conky_monitor.sh] Loading environment variables..."
 source $CURRENT_SCRIPT_PATH/husky_setup.sh
 _husky_check_setup
-roscore & 
-rosrun husky_manager check_sensors.py __name:=conky_check_sensors >/dev/null &
 
-conky -d -c $CURRENT_SCRIPT_PATH/../monitor/conkyrc_network &
-conky -d -c $CURRENT_SCRIPT_PATH/../monitor/conkyrc
+# sudo -u administrator conky -d -c $CURRENT_SCRIPT_PATH/../monitor/conkyrc_network &
+# sudo -u administrator conky -d -c $CURRENT_SCRIPT_PATH/../monitor/conkyrc
+
+# Load correct environment variables to run conky
+env > /tmp/current_env
+run_conky_with_env() {
+    sudo -E -u administrator bash -c "
+        while IFS='=' read -r key value; do
+            export \"\$key=\$value\"
+        done < /tmp/current_env
+        
+        conky -d -c $1
+    "
+}
+
+run_roslaunch_with_env() {
+    sudo -E -u administrator bash -c "
+        while IFS='=' read -r key value; do
+            export \"\$key=\$value\"
+        done < /tmp/current_env
+        
+        roslaunch husky_manager check.launch node_name:=conky_check_sensors > /tmp/conky_check_sensors.log 2>&1 &
+    "
+}
+
+echo "[husky_conky_monitor.sh] Running both conky instances"
+run_conky_with_env "$CURRENT_SCRIPT_PATH/../monitor/conkyrc_network" &
+run_conky_with_env "$CURRENT_SCRIPT_PATH/../monitor/conkyrc" &
+
+echo "[husky_conky_monitor.sh] Launching check sensors node for conky"
+run_roslaunch_with_env
