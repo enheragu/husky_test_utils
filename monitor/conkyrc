@@ -53,6 +53,7 @@ ${color #FFFFFF}${font Ubuntu:size=9}
 · enp2s0 IP: ${alignr}$HUSKY_LIDAR_IP_DEST
 · GPS Port: ${alignr}$HUSKY_GPS_PORT
 · IMU Port: ${alignr}$HUSKY_IMU_PORT
+· PTP: ${if_match ${exec pgrep -f "ptp4l.*enp"}!=0}${color green}● ${exec ps -C ptp4l -o args= | grep enp | grep -o enp[0-9]s0 | tr '\n' ' '}${color}${else}${color red}○ NO PTP${color}${endif}
 ${font}
 ${color #2C001E}$hr
 

@@ -1,0 +1,13 @@
+# ptp_cameras_lidar.service
+[Unit]
+Description=ptp4l enp1s0+enp2s0
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/ptp4l -f /etc/linuxptp/ptp4l.conf -i enp1s0 -i enp2s0 -S
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -7,6 +7,8 @@ Those who need to be run with root:
     sudo ln -s /home/administrator/eeha/test_utils/systemctl_services/conky.service /etc/systemd/system/
     # sudo ln -s /home/administrator/eeha/test_utils/systemctl_services/multiespectral_cameras.service /etc/systemd/system/
     # sudo ln -s /home/administrator/eeha/test_utils/systemctl_services/fisheye_cameras.service /etc/systemd/system/
+    sudo ln -s /home/administrator/eeha/test_utils/systemctl_services/ptp_cameras_lidar.service /etc/systemd/system/
+    sudo ln -s /home/administrator/eeha/test_utils/systemctl_services/ptp_phc2sys.service /etc/systemd/system/
 ```
 
 ```sh
@@ -18,6 +20,8 @@ Those who need to be run with root:
     # sudo systemctl disable fisheye_cameras.service # Not used for now!
     # sudo systemctl enable multiespectral_cameras.service
     # sudo systemctl enable fisheye_cameras.service
+    sudo systemctl enable ptp_cameras_lidar.service
+    sudo systemctl enable ptp_phc2sys.service
 ```
 
 ```sh
@@ -27,6 +31,8 @@ Those who need to be run with root:
     sudo systemctl start conky.service
     # sudo systemctl start multiespectral_cameras.service
     # sudo systemctl start fisheye_cameras.service
+    sudo systemctl start ptp_cameras_lidar.service
+    sudo systemctl start ptp_phc2sys.service
 ```
 
 
