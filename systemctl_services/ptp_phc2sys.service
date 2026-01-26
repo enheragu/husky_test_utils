@@ -1,13 +1,15 @@
-# /etc/systemd/system/phc2sys.service
 [Unit]
-Description=phc2sys (PHC -> CLOCK_REALTIME)
+Description=Sincronizar CLOCK_REALTIME -> PHCs
 After=ptp4l.service
 Requires=ptp4l.service
 
 [Service]
 Type=simple
-ExecStart=/usr/sbin/phc2sys -c CLOCK_REALTIME -s enp2s0 -w -m
+# -s es la FUENTE (PC), -c son los DESTINOS (Tarjetas)
+# Eliminamos -Q para que los logs lleguen al journal
+ExecStart=/bin/sh -c "/usr/sbin/phc2sys -s CLOCK_REALTIME -c enp1s0 -m -O 0 & /usr/sbin/phc2sys -s CLOCK_REALTIME -c enp2s0 -m -O 0"
 Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
+

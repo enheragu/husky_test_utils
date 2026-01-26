@@ -53,7 +53,10 @@ ${color #FFFFFF}${font Ubuntu:size=9}
 · enp2s0 IP: ${alignr}$HUSKY_LIDAR_IP_DEST
 · GPS Port: ${alignr}$HUSKY_GPS_PORT
 · IMU Port: ${alignr}$HUSKY_IMU_PORT
-· PTP: ${if_match ${exec pgrep -f "ptp4l.*enp"}!=0}${color green}● ${exec ps -C ptp4l -o args= | grep enp | grep -o enp[0-9]s0 | tr '\n' ' '}${color}${else}${color red}○ NO PTP${color}${endif}
+· ${if_match ${exec pgrep -f "ptp4l"}!=0}${color green}● PTP Master Active${color}
+    ${color white}enp1s0:${color} ${execi 2 journalctl -u ptp_phc2sys -n 500 --no-pager | grep -i "enp1s0" | grep "offset" | tail -n 1 | grep -oP 'offset\s+\K[-0-9]+' || echo "Check Config"} ns
+    ${color white}enp2s0:${color} ${execi 2 journalctl -u ptp_phc2sys -n 500 --no-pager | grep -i "enp2s0" | grep "offset" | tail -n 1 | grep -oP 'offset\s+\K[-0-9]+'} ns
+${else}${color red}○ PTP Disabled${color}${endif}
 ${font}
 ${color #2C001E}$hr
 
