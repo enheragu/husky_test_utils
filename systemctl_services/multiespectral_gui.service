@@ -1,0 +1,18 @@
+# This file should be placed in: /etc/systemd/system/multiespectral_gui.service
+# Symlink: sudo ln -s /home/administrator/eeha/test_utils/systemctl_services/multiespectral_gui.service /etc/systemd/system/
+
+[Unit]
+Description="Multiespectral Camera GUI - Flask web interface for multiespectral cameras"
+After=network.target husky_web_manager.service
+Wants=network.target
+Requires=roscore.service
+
+[Service]
+Type=simple
+User=administrator
+ExecStart=/bin/bash -c "source /home/administrator/husky_setup.sh; _husky_check_setup; echo '[multiespectral_gui.service] Starting Multiespectral GUI on port 5051'; /opt/ros/noetic/bin/roslaunch --wait multiespectral_acquire_gui multiespectral_gui_launch.launch flask_port:=5051"
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

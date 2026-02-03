@@ -1,8 +1,8 @@
 
 [Unit]
 Description="bringup ros multiespectral cameras"
-After=ros.service
-Requires=sensors.service
+After=roscore.service sensors.service
+Requires=roscore.service sensors.service
 
 
 [Service]

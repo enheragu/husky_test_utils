@@ -11,7 +11,7 @@ function parseFile(filename)
         if key and value then
             -- Determina el color según el valor
             local color = "${color green}" -- Por defecto, verde
-            if value:match("N/A") or value:match("nan") or value:match("-1") then
+            if value:match("N/A") or value:match("nan") or value:match("-1") or value:match("False") then
                 color = "${color red}"
             end
 

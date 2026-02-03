@@ -51,6 +51,7 @@ run_roslaunch_with_env() {
 }
 
 echo "[husky_conky_monitor.sh] Running both conky instances"
+run_conky_with_env "$CURRENT_SCRIPT_PATH/../monitor/conkyrc_command" &
 run_conky_with_env "$CURRENT_SCRIPT_PATH/../monitor/conkyrc_network" &
 run_conky_with_env "$CURRENT_SCRIPT_PATH/../monitor/conkyrc" &
 

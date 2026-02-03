@@ -2,15 +2,16 @@
 
 [Unit]
 Description="bringup ros"
-After=conky.service
-Requires=conky.service
+After=roscore.service conky.service
+Requires=roscore.service
+Wants=conky.service
 
 [Service]
 Type=simple
 # Environment="HUSKY_PORT=$HUSKY_PORT"
 # ExecStart=/usr/sbin/ros-start
 # ExecStartPre=/bin/bash -c "until rosnode list &>/dev/null; do sleep 2; done" # wait until roscore is ready
-ExecStart=/bin/bash -c "echo '[husky_base.service] Setup environtment for systemctl run'; source /home/administrator/husky_setup.sh; _husky_check_setup; echo '[husky_base.service] Run Husky ROS base'; /opt/ros/noetic/bin/roslaunch husky_base base.launch"
+ExecStart=/bin/bash -c "echo '[husky_base.service] Setup environtment for systemctl run'; source /home/administrator/husky_setup.sh; _husky_check_setup; echo '[husky_base.service] Run Husky ROS base'; /opt/ros/noetic/bin/roslaunch --wait husky_base base.launch"
 
 [Install]
 WantedBy=multi-user.target

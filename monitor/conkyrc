@@ -35,13 +35,6 @@ ${color #2C001E}$hr
 ${color #FFFFFF}${font Ubuntu:bold:size=13}Cameras Status ${hr}$font
 ${lua_parse conky_camerasStatus}
 # ${color #FFFFFF}${font Ubuntu:size=9}${exec cat /tmp/husky_cameras_status.txt}
-${color #2C001E}$hr
-${color #FFFFFF}${font Ubuntu:bold:size=13}Command shortcuts ${hr}$font
-${color #FFFFFF}${font Ubuntu:size=9}· F5:   Launch Robot base
-${color #FFFFFF}${font Ubuntu:size=9}· F6:   Launch Robot sensors
-${color #FFFFFF}${font Ubuntu:size=9}· F7:   Launch Multiespectral camera
-${color #FFFFFF}${font Ubuntu:size=9}· F8:   Launch Fisheye cameras
-${color #FFFFFF}${font Ubuntu:size=9}· F9:   Launch Hz Check table
 
 ${color #2C001E}$hr
 ${color #FFFFFF}${font Ubuntu:bold:size=13}Sensors setup ${hr}$font
@@ -54,8 +47,7 @@ ${color #FFFFFF}${font Ubuntu:size=9}
 · GPS Port: ${alignr}$HUSKY_GPS_PORT
 · IMU Port: ${alignr}$HUSKY_IMU_PORT
 · ${if_match ${exec pgrep -f "ptp4l"}!=0}${color green}● PTP Master Active${color}
-    ${color white}enp1s0:${color} ${execi 2 journalctl -u ptp_phc2sys -n 500 --no-pager | grep -i "enp1s0" | grep "offset" | tail -n 1 | grep -oP 'offset\s+\K[-0-9]+' || echo "Check Config"} ns
-    ${color white}enp2s0:${color} ${execi 2 journalctl -u ptp_phc2sys -n 500 --no-pager | grep -i "enp2s0" | grep "offset" | tail -n 1 | grep -oP 'offset\s+\K[-0-9]+'} ns
+    ${color white}enp1s0:${color} ${execi 2 journalctl -u ptp_phc2sys -n 500 --no-pager | grep -i "enp1s0" | grep "offset" | tail -n 1 | grep -oP 'offset\s+\K[-0-9]+' || echo "Check Config"} ns   |   ${color white}enp2s0:${color} ${execi 2 journalctl -u ptp_phc2sys -n 500 --no-pager | grep -i "enp2s0" | grep "offset" | tail -n 1 | grep -oP 'offset\s+\K[-0-9]+'} ns
 ${else}${color red}○ PTP Disabled${color}${endif}
 ${font}
 ${color #2C001E}$hr

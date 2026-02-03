@@ -1,0 +1,32 @@
+
+
+conky.config = {
+    update_interval = 1,
+    own_window = true,
+    own_window_type = 'desktop',
+    double_buffer = true,
+    use_xft = true,
+    font = 'Ubuntu Mono:size=10',
+    alignment = 'bottom_right',
+    gap_x = 285,
+    gap_y = 260,
+    own_window_argb_visual = true,
+    own_window_argb_value = 50,
+    double_buffer = true,
+    draw_shades = false,
+    minimum_width = 310,
+};
+    
+conky.text = [[
+# Inline if so it does not add spaces :(
+${color #2C001E}$hr${font}
+${color #FFFFFF}${font Ubuntu:bold:size=13}Command shortcuts ${hr}$font
+${color #FFFFFF}${font Ubuntu:size=9}· F5:   Launch Robot base
+${color #FFFFFF}${font Ubuntu:size=9}· F6:   Launch Robot sensors
+${color #FFFFFF}${font Ubuntu:size=9}· F7:   Launch Roboc Localization
+${color #FFFFFF}${font Ubuntu:size=9}· F8:   Launch Multiespectral camera
+${color #FFFFFF}${font Ubuntu:size=9}· F9:   Launch Fisheye cameras
+${color #FFFFFF}${font Ubuntu:size=9}· F10:  Hz Check table
+${color #2C001E}$hr${font}
+]];
+    

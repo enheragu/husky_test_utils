@@ -2,6 +2,7 @@ function conky_checkProcesses()
     local processes = {
         { name = "Husky Base", command = "/usr/bin/python3 /opt/ros/noetic/bin/roslaunch husky_base base.launch" },
         { name = "Husky Sensors", command = "/usr/bin/python3 /opt/ros/noetic/bin/roslaunch husky_manager sensors_manager.launch" },
+        { name = "Husky Localization", command = "/usr/bin/python3 /opt/ros/noetic/bin/roslaunch husky_manager localization_manager.launch" },
         { name = "Multiespectral cameras", command = "/usr/bin/python3 /opt/ros/noetic/bin/roslaunch multiespectral_fb multiespectral.launch" },
         { name = "Fisheye cameras", command = "/usr/bin/python3 /opt/ros/noetic/bin/roslaunch husky_manager fisheye_cameras.launch" }
     }

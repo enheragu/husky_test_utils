@@ -39,16 +39,17 @@ function _husky_export_ip() {
 	_husky_get_imu_port
 	_husky_setup_urdf
 	export HUSKY_OBC_IP=$OWN_IP 					# Husky on board computer IP 
-	# export HUSKY_LIDAR_IP=$(getent hosts os-122512000307.local | awk '{print $1}') 			# LIDAR IP ORIGINAL
-	export HUSKY_LIDAR_IP=$(getent hosts os-122138000706.local | awk '{print $1}') 			# LIDAR IP ORIGINAL
+	# export HUSKY_LIDAR_IP=$(getent hosts os-122512000307.local | awk '{print $1}') 			# LIDAR HOSTNAME NEW
+	# export HUSKY_LIDAR_IP=$(getent hosts os-122138000706.local | awk '{print $1}') 			# LIDAR IP ORIGINAL
+	export HUSKY_LIDAR_IP=169.254.252.240 			# LIDAR IP ORIGINAL
 	export HUSKY_LIDAR_IP_DEST=$(ip addr show enp2s0 | grep "inet " | awk '{print $2}' | cut -d/ -f1)
 	# export HUSKY_LIDAR_IP_DEST=169.254.97.224 
 	export HUSKY_GPS_PORT="/dev/ttyS0"			# GPS serial port
 	export HUSKY_IMU_PORT=$IMU_PORT				# IMU serial port
 	
-	export FRONTAL_FISHEYE_IP="169.254.165.4"
-    export REAR_FISHEYE_IP="169.254.165.3"
-	export MULTIESPECTRAL_VISIBLE_IP="169.254.165.5"
+	export FRONTAL_FISHEYE_IP="192.168.4.7"
+    export REAR_FISHEYE_IP="192.168.4.8"
+	export MULTIESPECTRAL_VISIBLE_IP="192.168.4.5"
 	export MULTIESPECTRAL_LWIR_IP="169.254.165.138"
 	
 	export HUSKY_WIFI_IP=192.168.1.151 # Static IP configured 
@@ -97,12 +98,12 @@ function _husky_setup_urdf() {
 	um7_imu_enclosure_z_size=0.009
 	
 	# export HUSKY_IMU_XYZ="$(echo "0.291+$um7_imu_enclosure_x_size*0.5" | bc) 0 $(echo "0.284-$um7_imu_enclosure_z_size*0.5" | bc)" 
-	export HUSKY_IMU_XYZ=" -0.025 0.0 $(echo "0.202+$um7_imu_enclosure_z_size*0.5"| bc)"
+	export HUSKY_IMU_XYZ=" -0.035 0.0 $(echo "0.022+$um7_imu_enclosure_z_size*0.5"| bc)"
 	export HUSKY_IMU_RPY="0 0 0"
 	export HUSKY_IMU_PARENT="top_plate_link"
 		
 	#export HUSKY_LIDAR_XYZ="$(echo "0.291+$um7_imu_enclosure_x_size*0.5" | bc) 0 0.361925"
-	export HUSKY_LIDAR_XYZ="-0.055 0 0.585" 
+	export HUSKY_LIDAR_XYZ="-0.075 0 0.58" 
 	export HUSKY_LIDAR_RPY="0 0 0"
 	
 }
@@ -126,46 +127,3 @@ function _husky_setup_urdf() {
 # 	# fi
 # }
 
-
-function _multiespectral_capture_init()
-{   
-    TOPIC_NAME="/Multiespectral/AS/goal"
-    TIMEOUT=15
-    ELAPSED=0
-
-    while ! rostopic list | grep -q "$TOPIC_NAME"; do
-        if [ "$ELAPSED" -ge "$TIMEOUT" ]; then
-            echo "***** Timeout reached. $TOPIC_NAME server not found. Exiting. *****"
-            return 1
-        fi
-
-        echo "***** Waiting for $TOPIC_NAME server... *****"
-        sleep 1
-        ELAPSED=$((ELAPSED + 1))
-    done
-
-    echo "***** Activate goal for $TOPIC_NAME. *****"
-    
-    rostopic pub /Multiespectral/AS/goal multiespectral_fb/MultiespectralAcquisitionActionGoal "header:
-  seq: 0
-  stamp:
-    secs: 0
-    nsecs: 0
-  frame_id: ''
-goal_id:
-  stamp:
-    secs: 0
-    nsecs: 0
-  id: ''
-goal:
-  store: false"
-}
-
-
-function _husky_launch_multiespectral_camera() 
-{
-	# _husky_flir_setup
-	# Launch goal to AC to capture images by default from the beginning
-	_multiespectral_capture_init &	
-	roslaunch multiespectral_fb multiespectral.launch
-}

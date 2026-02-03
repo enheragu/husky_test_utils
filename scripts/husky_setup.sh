@@ -28,9 +28,10 @@ if [[ $- == *i* ]]; then
 
 	bind -x '"\e[15~":"husky_launch_base"' 					# F5
 	bind -x '"\e[17~":"husky_launch_sensors"' 				# F6
-	bind -x '"\e[18~":"husky_launch_multiespectral_camera"'	# F7
-	bind -x '"\e[19~":"husky_launch_fisheye_cameras"'	    # F8
-	bind -x '"\e[20~":"husky_check_sensors"' 				# F9		
+	bind -x '"\e[18~":"husky_launch_localization"'    		# F7
+	bind -x '"\e[19~":"husky_launch_multiespectral_camera"'	# F8
+	bind -x '"\e[20~":"husky_launch_fisheye_cameras"'	    # F9	
+	bind -x '"\e[21~":"husky_check_sensors"' 				# F10		
 else
     echo "Non interactive shell, not binding keys for command shortcuts"
 fi
@@ -44,8 +45,13 @@ function husky_ros_setup() {
 	source /home/administrator/husky_noetic_ws/devel/setup.bash
 
 	# When run in systemctl theres no localhost yet
-	export ROS_HOSTNAME=localhost
-	export ROS_MASTER_URI=http://localhost:11311
+	# export ROS_HOSTNAME=localhost # Da problemas en multiple machines 
+	# export ROS_MASTER_URI=http://localhost:11311
+	export ROS_MASTER_URI=http://cpr-gnr107:11311
+	export ROS_HOSTNAME=cpr-gnr107 # This is the hostname of the OBC, it is used to identify the robot in the network
+	# export ROS_MASTER_URI=http://husky1:11311
+	# export ROS_IP=127.0.0.1
+	# export ROS_MASTER_IP=http://192.168.88.253:11311
 
 	# export ROS_HOSTNAME=$HUSKY_WIFI_IP	
 	# export ROS_MASTER_URI=http://$HUSKY_WIFI_IP:11311
@@ -89,10 +95,8 @@ function husky_launch_sensors() {
 function husky_launch_multiespectral_camera() 
 {
 	_husky_check_setup
-	# _husky_flir_setup
-	# Launch goal to AC to capture images by default from the beginning
-	_multiespectral_capture_init &	
-	roslaunch multiespectral_fb multiespectral.launch
+	# roslaunch multiespectral_fb multiespectral.launch
+	(roscd multiespectral_acquire && source scripts/launch_multiespectral_with_timestamp.sh)
 	# sudo systemctl restart multiespectral_cameras.service
 }
 
@@ -101,7 +105,8 @@ function husky_launch_fisheye_cameras()
 {
 	_husky_check_setup
 	# sudo systemctl restart fisheye_cameras.service
-	roslaunch husky_manager fisheye_cameras.launch
+	# roslaunch husky_manager fisheye_cameras.launch
+	(roscd multiespectral_acquire && source scripts/launch_fisheye_with_timestamp.sh)
 }
 
 ## Command to compile husky workspace from any path
@@ -122,10 +127,17 @@ function husky_check_sensors()
 function husky_launch_localization() {
 	_husky_lidar_sync_time
 	_husky_check_setup
-	roslaunch husky_manager localization_manager.launch
+	# roslaunch husky_manager localization_manager.launch
+	sudo systemctl restart localization.service
 }
 
 
+function husky_multiespectral_start_store() {
+	rostopic pub -1 -l /Multiespectral/recording_enabled std_msgs/Bool "data: true" 
+}
+function husky_multiespectral_stop_store() {
+	rostopic pub -1 -l /Multiespectral/recording_enabled std_msgs/Bool "data: false" 
+}
 
 #########################
 ##    DEPRECATED :)    ##

@@ -1,0 +1,12 @@
+[Unit]
+Description="bringup ros drivers for basic Husky Localization"
+After=roscore.service sensors.service
+Requires=roscore.service sensors.service
+
+[Service]
+Type=simple
+#ExecStartPre=/bin/bash -c "until rosnode list &>/dev/null; do sleep 2; done" # Wait until roscore is ready
+ExecStart=/bin/bash -c "echo '[localization.service] Setup environtment for systemctl run'; source /home/administrator/husky_setup.sh; _husky_check_setup; echo '[localization.service] Run Husky ROS Localization manager'; /opt/ros/noetic/bin/roslaunch --wait husky_manager localization_manager.launch"
+
+[Install]
+WantedBy=multi-user.target

@@ -19,8 +19,8 @@
   
   <link name="gps_link"/>
   <joint name="gps_joint" type="fixed">
-    <origin xyz="$(optenv HUSKY_GPS_XYZ 0.35 0 0.245)" rpy="$(optenv HUSKY_GPS_RPY 0 0 0)" />
-    <parent link="base_link" />
+    <origin xyz="$(optenv HUSKY_GPS_XYZ 0.08 0 0.245)" rpy="$(optenv HUSKY_GPS_RPY 0 0 0)" />
+    <parent link="top_plate_front_link" />
     <child link="gps_link" />
   </joint>
   <gazebo reference="gps_link">

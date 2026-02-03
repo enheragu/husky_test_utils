@@ -1,0 +1,18 @@
+# This file should be placed in: /etc/systemd/system/husky_web_manager.service
+# Symlink: sudo ln -s /home/administrator/eeha/test_utils/systemctl_services/husky_web_manager.service /etc/systemd/system/
+
+[Unit]
+Description="Husky Web Manager - Flask monitoring interface"
+After=network.target roscore.service
+Wants=network.target
+Requires=roscore.service
+
+[Service]
+Type=simple
+User=administrator
+ExecStart=/bin/bash -c "source /home/administrator/husky_setup.sh; _husky_check_setup; echo '[husky_web_manager.service] Starting Web Manager on port 5050'; /opt/ros/noetic/bin/roslaunch --wait husky_manager web_manager.launch port:=5050"
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

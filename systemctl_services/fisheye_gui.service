@@ -1,0 +1,18 @@
+# This file should be placed in: /etc/systemd/system/fisheye_gui.service
+# Symlink: sudo ln -s /home/administrator/eeha/test_utils/systemctl_services/fisheye_gui.service /etc/systemd/system/
+
+[Unit]
+Description="Fisheye Camera GUI - Flask web interface for fisheye cameras"
+After=network.target husky_web_manager.service
+Wants=network.target
+Requires=roscore.service
+
+[Service]
+Type=simple
+User=administrator
+ExecStart=/bin/bash -c "source /home/administrator/husky_setup.sh; _husky_check_setup; echo '[fisheye_gui.service] Starting Fisheye GUI on port 5052'; /opt/ros/noetic/bin/roslaunch --wait multiespectral_acquire_gui fisheye_gui_launch.launch flask_port:=5052"
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
