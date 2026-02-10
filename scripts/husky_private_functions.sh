@@ -4,14 +4,14 @@ source $HUSKY_SETUP_SCRIPT_PATH/log_utils.sh
 
 ## Get IP in eno1 adapter (cisco router)
 function _husky_get_ip() {
-
 	## Setup base (wheel...) serial port
-	export HUSKY_PORT="/dev/$(dmesg | grep "tty" | sed -En 's/.*usb 1-[0-9]: pl2303 converter now attached to (port:)?((ttyUSB[0-9])).*/\2/p')"
-	
-	if [ -z "$HUSKY_PORT"  ]
-	then
+	# export HUSKY_PORT="/dev/$(dmesg | grep "tty" | sed -En 's/.*usb 1-[0-9]: pl2303 converter now attached to (port:)?((ttyUSB[0-9])).*/\2/p')"
+	export HUSKY_PORT="$(readlink -f /dev/serial/by-id/usb-Prolific_Technology_Inc._USB-Serial_Controller_D-if00-port0 2>/dev/null)"
+
+	if [ -z "$HUSKY_PORT" ]; then
 		export HUSKY_PORT="/dev/ttyUSB0"
 	fi
+
 
 	## Setup OBC own IP
 	export OWN_IP=$(ifconfig eno1 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
@@ -23,20 +23,29 @@ function _husky_get_ip() {
 
 ## Get ttyUSB port in which IMU is connected
 function _husky_get_imu_port() {
-	export IMU_PORT="/dev/$(dmesg | grep "tty" | sed -En 's/.*usb 1-[0-9]: FTDI USB Serial Device converter now attached to (port:)?((ttyUSB[0-9])).*/\2/p')"
-	
-	if [ -z "$IMU_PORT"  ]
-	then
-		export IMU_PORT="/dev/ttyUSB0"
-  	else
-   		export IMU_PORT="$IMU_PORT"
-	fi
+	# export IMU_PORT="/dev/$(dmesg | grep "tty" | sed -En 's/.*usb 1-[0-9]: FTDI USB Serial Device converter now attached to (port:)?((ttyUSB[0-9])).*/\2/p')"
+
+    local port
+    port=$(readlink -f /dev/serial/by-id/usb-FTDI_TTL232R-3V3_FTCEUT0Q-if00-port0 2>/dev/null)
+    
+	[ -z "$port" ] && port="/dev/ttyUSB0"
+    export IMU_PORT="$port"
+}
+
+function _husky_get_dht22_port() {
+	# export DHT22_PORT="/dev/$(dmesg | grep "tty" | sed -En 's/.*usb 1-[0-9]: ch341-uart converter now attached to (port:)?((ttyUSB[0-9])).*/\2/p')"
+    local port
+    port=$(readlink -f /dev/serial/by-id/usb-1a86_USB_Serial-if00-port0 2>/dev/null)
+    
+	[ -z "$port" ] && port="/dev/ttyUSB0"
+    export DHT22_PORT="$port"
 }
 
 ## IP and port configuration
 function _husky_export_ip() {
 	_husky_get_ip
 	_husky_get_imu_port
+	_husky_get_dht22_port
 	_husky_setup_urdf
 	export HUSKY_OBC_IP=$OWN_IP 					# Husky on board computer IP 
 	# export HUSKY_LIDAR_IP=$(getent hosts os-122512000307.local | awk '{print $1}') 			# LIDAR HOSTNAME NEW

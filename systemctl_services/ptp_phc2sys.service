@@ -1,14 +1,18 @@
 [Unit]
 Description=Sincronizar CLOCK_REALTIME -> PHCs
-After=ptp4l.service
-Requires=ptp4l.service
+After=ptp_cameras_lidar.service
+Requires=ptp_cameras_lidar.service
 
 [Service]
 Type=simple
+# Primero sincronizamos los PHCs con la hora del sistema, luego iniciamos phc2sys
 # -s es la FUENTE (PC), -c son los DESTINOS (Tarjetas)
-# Eliminamos -Q para que los logs lleguen al journal
+ExecStartPre=/usr/sbin/phc_ctl enp1s0 set
+ExecStartPre=/usr/sbin/phc_ctl enp2s0 set
 ExecStart=/bin/sh -c "/usr/sbin/phc2sys -s CLOCK_REALTIME -c enp1s0 -m -O 0 & /usr/sbin/phc2sys -s CLOCK_REALTIME -c enp2s0 -m -O 0"
 Restart=on-failure
+TimeoutStopSec=10
+KillMode=mixed
 
 [Install]
 WantedBy=multi-user.target
