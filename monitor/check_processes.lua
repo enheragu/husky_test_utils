@@ -1,19 +1,18 @@
 function conky_checkProcesses()
     local processes = {
-        { name = "Husky Base", command = "/usr/bin/python3 /opt/ros/noetic/bin/roslaunch husky_base base.launch" },
-        { name = "Husky Sensors", command = "/usr/bin/python3 /opt/ros/noetic/bin/roslaunch husky_manager sensors_manager.launch" },
-        { name = "Husky Localization", command = "/usr/bin/python3 /opt/ros/noetic/bin/roslaunch husky_manager localization_manager.launch" },
-        { name = "Multiespectral cameras", command = "/usr/bin/python3 /opt/ros/noetic/bin/roslaunch multiespectral_fb multiespectral.launch" },
-        { name = "Fisheye cameras", command = "/usr/bin/python3 /opt/ros/noetic/bin/roslaunch husky_manager fisheye_cameras.launch" }
+        { name = "Husky Base", service = "husky_base" },
+        { name = "Husky Sensors", service = "sensors" },
+        { name = "Husky Localization", service = "localization" },
+        { name = "Multiespectral cameras", service = "multiespectral_cameras" },
+        { name = "Fisheye cameras", service = "fisheye_cameras" }
     }
 
     local output = ""
     for _, process in ipairs(processes) do
-        local handle = io.popen("pgrep -f '^" .. process.command .. "$'")
-        local pid = handle:read("*a"):gsub("%s+", "")
-        -- print("Cmd search: [" .. pid .. "] for command [" .. command .. "]")
-        -- print(name .. ": " .. "pgrep -f '" .. command .. "'" .. " -> " .. pid)
+        local handle = io.popen("systemctl is-active " .. process.service .. ".service 2>/dev/null")
+        local status = handle:read("*a"):gsub("%s+", "")
         handle:close()
+        local pid = (status == "active") and "1" or ""
 
         if pid ~= "" then
             output = output .. "${color #FFFFFF}${font Ubuntu:size=9} · " .. process.name .. ":" .. "${color green}${alignr}" .. " Active${color}\n"

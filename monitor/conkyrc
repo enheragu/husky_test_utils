@@ -7,9 +7,12 @@ conky.config = {
     double_buffer = true,
     use_xft = true,
     font = 'Ubuntu Mono:size=10',
-    alignment = 'top_right',
+    alignment = 'bottom_right',
     gap_x = 15,
-    gap_y = 40,
+    gap_y = 15,
+    minimum_width = 270,
+    maximum_width = 270,
+    minimum_height = 830,
     own_window_argb_visual = true,
     own_window_argb_value = 50,
     double_buffer = true,
@@ -47,7 +50,8 @@ ${color #FFFFFF}${font Ubuntu:size=9}
 · GPS Port: ${alignr}$HUSKY_GPS_PORT
 · IMU Port: ${alignr}$HUSKY_IMU_PORT
 · ${if_match ${exec pgrep -f "ptp4l"}!=0}${color green}● PTP Master Active${color}
-    ${color white}enp1s0:${color} ${execi 2 journalctl -u ptp_phc2sys -n 500 --no-pager | grep -i "enp1s0" | grep "offset" | tail -n 1 | grep -oP 'offset\s+\K[-0-9]+' || echo "Check Config"} ns   |   ${color white}enp2s0:${color} ${execi 2 journalctl -u ptp_phc2sys -n 500 --no-pager | grep -i "enp2s0" | grep "offset" | tail -n 1 | grep -oP 'offset\s+\K[-0-9]+'} ns
+  ${color white}  enp1s0:${alignr}${execi 2 journalctl -u ptp_phc2sys -n 500 --no-pager | grep -i "enp1s0" | grep "offset" | tail -n 1 | grep -oP 'offset\s+\K[-0-9]+' || echo "N/A"} ns${color}
+  ${color white}  enp2s0:${alignr}${execi 2 journalctl -u ptp_phc2sys -n 500 --no-pager | grep -i "enp2s0" | grep "offset" | tail -n 1 | grep -oP 'offset\s+\K[-0-9]+' || echo "N/A"} ns${color}
 ${else}${color red}○ PTP Disabled${color}${endif}
 ${font}
 ${color #2C001E}$hr

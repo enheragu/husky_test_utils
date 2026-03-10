@@ -1,0 +1,25 @@
+#!/bin/bash
+# NetworkManager dispatcher script
+# Removes the auto-assigned link-local (169.254.x.x) address from enp1s0.
+#
+# Why: NM 1.22 (Ubuntu 20.04) always adds a link-local address even when
+# ipv4.method=manual. This causes GigE Vision cameras (FLIR) to be discovered
+# on the wrong subnet via enp2s0 (which also has a 169.254.x.x/16 address),
+# breaking PTP synchronization.
+#
+# Install:
+#   sudo ln -s /home/administrator/eeha/test_utils/scripts/99-remove-linklocal-enp1s0 \
+#              /etc/NetworkManager/dispatcher.d/99-remove-linklocal-enp1s0
+#   sudo chmod 755 /home/administrator/eeha/test_utils/scripts/99-remove-linklocal-enp1s0
+
+INTERFACE="$1"
+ACTION="$2"
+
+if [ "$INTERFACE" = "enp1s0" ] && [ "$ACTION" = "up" ]; then
+    # Find and remove any link-local address on enp1s0
+    LINKLOCAL=$(ip -4 addr show dev enp1s0 | grep "169.254" | awk '{print $2}')
+    if [ -n "$LINKLOCAL" ]; then
+        ip addr del "$LINKLOCAL" dev enp1s0 2>/dev/null
+        logger -t "nm-dispatcher" "Removed link-local $LINKLOCAL from enp1s0"
+    fi
+fi

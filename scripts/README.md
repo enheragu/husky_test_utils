@@ -1,44 +1,61 @@
-# Instrucciones para lanzar los paquetes del Husky
+# Shell Scripts
 
-##### 1. En primer lugar ejecutar la función que contiene el archivo `husky_setup.sh` desde el terminal:
-  ```sh
-    husky_ros_setup 
-  ```
-  
-  Esta función prepara el entorno de ROS. 
+Shell environment and helper functions for operating the Husky UGV. Sourced automatically from `~/.bashrc` via `husky_setup.sh`.
 
-##### 2. En segundo lugar ejecutamos:
-  ```sh
-    husky_launch_sensors
-  ```
-  
-  Esta función lanza todos los nodos de ROS de los sensores y sincroniza el OBC del LIDAR con el del robot.
+## Quick Start
 
-##### 3. En tercer lugar si se quiera hacer un rosbag existe la función:
-  ```sh
-    husky_record_rosbag
-  ```
-  
-  Esta función guarda todos los mensaje que se envían a través de los topics que se estén publicando en ese momento.
+```sh
+# 1. Setup ROS environment (runs automatically on login)
+husky_ros_setup
 
-##### 4. Si se quiere comprobar que el LIDAR está sincronizado:
-  ```sh
-    rostopic echo /ouster/points | grep "secs"
-    rostopic echo /imu/data | grep "secs" 
-  ```
-  
-  Se observa si coinciden los timestamps de ambos mensajes, por la experincia que tenemos puede haber un delay bastante constante entre amb
-os. 
+# 2. Launch sensors (LIDAR, GPS, IMU, DHT22) with PTP time sync
+husky_launch_sensors
 
-##### 5. Set de la posición de la base del GPS:
-  Se precisa del uso de un paquete llamado `test_utils`. Este paqeute contiene una interfaz gráfica a partir de la cual se leen los
- mensajes que el gps publica en el puerto serie.
-  ```sh
-    python gui_antena_config.py [--port] [--baudrate]
-  ```
+# 3. (optional) Record all active topics
+husky_record_rosbag
+```
 
-  En principio no haría falta añadir ningún parámetro, al menos el baudrate está bien configurado. EL puerto puede depende de donde se cone
-te el dispositivo.
+## Main Functions
 
-  En la interfaz se puede hacer un set de unas coordenadas de latitud, longitud y altitud de donde se quiera colocar la base. Para ver si s
-e ha quedado guardado, dar al botón read Info y observar que sale. 
+| Function | Description |
+|----------|-------------|
+| `husky_ros_setup` | Source catkin workspace, export `ROS_MASTER_URI`, mount data disk, set hardware IPs |
+| `husky_launch_base` | Restart `husky_base.service` (motors, teleop, odometry) |
+| `husky_launch_sensors` | Sync LIDAR PTP clock, restart `sensors.service` |
+| `husky_launch_localization` | Restart `localization.service` (dual EKF + NavSat) |
+| `husky_launch_multiespectral_camera` | Launch multiespectral cameras (Basler RGB + FLIR LWIR) |
+| `husky_launch_fisheye_cameras` | Launch fisheye cameras (front + rear Basler) |
+| `husky_check_sensors` | Live frequency table for all sensor topics |
+| `husky_record_rosbag` | Record all currently published topics to a bag file |
+
+**F-key shortcuts** (terminal): F5=base, F6=sensors, F7=localization, F8=multiespectral, F9=fisheye, F10=sensor check.
+
+## Files
+
+| File | Purpose |
+|------|---------|
+| `husky_setup.sh` | Main entry point — sources everything, defines user-facing functions and F-key bindings |
+| `husky_private_functions.sh` | Internal helpers: hardware IP resolution, LIDAR time sync, URDF setup |
+| `log_utils.sh` | Logging helpers with color formatting |
+| `husky_conky_monitor.sh` | Launcher for the Conky desktop widgets |
+
+## Verifying LIDAR Time Sync
+
+```sh
+rostopic echo /ouster/points | grep "secs"
+rostopic echo /imu/data | grep "secs"
+```
+
+Both should show timestamps within a few milliseconds of each other.
+
+## GPS Base Station Setup
+
+Use the antenna configuration GUI (see [python/](../python/)) to set the base station coordinates over serial:
+
+```sh
+python gui_antena_config.py [--port PORT] [--baudrate BAUDRATE]
+```
+
+## Systemd Services
+
+These functions wrap `systemctl restart` calls. The service files are defined in [systemctl_services/](../systemctl_services/) — see its README for symlink and enable commands.

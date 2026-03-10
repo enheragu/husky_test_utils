@@ -1,37 +1,36 @@
-# Python Test Utils
+# Python Utilities
 
-Set of python scripts with utilities for logging, configuration and data processing.
+Scripts for GPS data processing and Harxon TS100 Smart Antenna serial configuration.
 
 ## Dependencies
 
-To install required dependencies you can use requirements file as follows Note that it assumes that `python3` is already installed:
-
 ```sh
-    $ xargs sudo apt-get install <requirements
+xargs sudo apt-get install < requirements
 ```
 
 ## Scripts
 
 ### gps_parser_map.py
 
-Utilities to parse GPS topic infor stored as file and make some operations with it. 
-It is mainly though to project the trajectoires and its associated error (based on covariance matrix provided by the antenna) over a given map (image).
+Parses GPS topic data (from `rostopic echo /gnss/fix` dumps), computes haversine distances between points, and projects trajectories with covariance-based error ellipses onto a map image.
 
-### gui_antena_config.py
+### gui_antena_config.py / gui_antena_config_qt.py
 
-GUI to configure common Harxon ts100 Smart Antenna setup over serial port. 
+Serial GUI for configuring the Harxon TS100 Smart Antenna: send `$CFG` commands, set NMEA output rates, and configure base station coordinates (latitude, longitude, altitude).
 
-The interface can be run (if the script has execution permission) as follows:
-```sh
-    $ ./gui_antena_config.py [-h] [-p PORT] [-b BAUDRATE]
-```
-
-Note that the port and baudrate are set as default but can be changed when executing the interface:
+Two versions are available: Tkinter and PyQt6.
 
 ```sh
-    optional arguments:
-    -h, --help            show this help message and exit
-    -p PORT, --port PORT  Port in which the antenna is connected. Takes /dev/ttyUSB0 as default.
-    -b BAUDRATE, --baudrate BAUDRATE
-                            Baudrate for communicating with the device. Takes 115200 as default.
+./gui_antena_config.py [-p PORT] [-b BAUDRATE]
+./gui_antena_config_qt.py [-p PORT] [-b BAUDRATE]
 ```
+
+| Argument | Default | Description |
+|----------|---------|-------------|
+| `-p PORT` | `/dev/ttyUSB0` | Serial port for the antenna |
+| `-b BAUDRATE` | `115200` | Communication baud rate |
+
+<p align="center">
+  <img src="../media/serial_port_GPS_antenna_interface.png" width="350" alt="Tkinter antenna configuration GUI" title="Tkinter version of the Harxon TS100 antenna configuration interface"/>
+  <img src="../media/serial_port_GPS_antenna_interface_qt.png" width="350" alt="PyQt6 antenna configuration GUI" title="PyQt6 version of the Harxon TS100 antenna configuration interface"/>
+</p>

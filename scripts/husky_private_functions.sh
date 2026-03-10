@@ -59,7 +59,7 @@ function _husky_export_ip() {
 	export FRONTAL_FISHEYE_IP="192.168.4.7"
     export REAR_FISHEYE_IP="192.168.4.8"
 	export MULTIESPECTRAL_VISIBLE_IP="192.168.4.5"
-	export MULTIESPECTRAL_LWIR_IP="169.254.165.138"
+	export MULTIESPECTRAL_LWIR_IP="192.168.4.6"
 	
 	export HUSKY_WIFI_IP=192.168.1.151 # Static IP configured 
 	# export HUSKY_WIFI_IP=$(ip addr show wlp3s0 | grep "inet " | awk '{print $2}' | cut -d/ -f1)
